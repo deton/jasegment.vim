@@ -1,10 +1,10 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
 scriptencoding utf-8
 
-" tinysegmenter.vim
+" tinysegmenter/func.vim
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-11
+" Last Change: 2013-02-12
 "
 " TinySegmenter 0.1 -- Super compact Japanese tokenizer in Javascript
 " (c) 2008 Taku Kudo <taku@chasen.org>
@@ -13,10 +13,6 @@ scriptencoding utf-8
 
 let s:save_cpo = &cpo
 set cpo&vim
-
-if !exists('g:tinysegmenter#model')
-  let g:tinysegmenter#model = g:tinysegmenter#model_knbc_bunsetu#model
-endif
 
 let s:patterns = {
   \ '[一二三四五六七八九十百千万億兆]':'M',
@@ -50,11 +46,11 @@ function s:getctype(str)
   return 'O'
 endfunction
 
-function tinysegmenter#segment(input)
+function tinysegmenter#func#segment(input) dict
   if a:input == ''
     return []
   endif
-  let m = g:tinysegmenter#model
+  let m = self
   let result = []
   let seg = ['B3','B2','B1']
   let ctype = ['O','O','O']
