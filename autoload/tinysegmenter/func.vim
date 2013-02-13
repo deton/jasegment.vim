@@ -4,7 +4,7 @@ scriptencoding utf-8
 " tinysegmenter/func.vim
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-12
+" Last Change: 2013-02-13
 "
 " TinySegmenter 0.1 -- Super compact Japanese tokenizer in Javascript
 " (c) 2008 Taku Kudo <taku@chasen.org>
@@ -46,11 +46,11 @@ function s:getctype(str)
   return 'O'
 endfunction
 
-function tinysegmenter#func#segment(input) dict
+function tinysegmenter#func#segment(model, input)
   if a:input == ''
     return []
   endif
-  let m = self
+  let m = a:model
   let result = []
   let seg = ['B3','B2','B1']
   let ctype = ['O','O','O']
