@@ -1,9 +1,9 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
 "
-" motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
+" plugins/motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-16
+" Last Change: 2013-02-17
 
 scriptencoding euc-jp
 
@@ -117,12 +117,32 @@ function! s:ExecB()
 	normal! B
 	return
       endif
-      call cursor(lnum - 1, strlen(getline(lnum-1)))
-      call s:ExecB()
+      let segcols = s:SegmentCol(getline(lnum - 1))
+      call cursor(lnum - 1, segcols[len(segcols) - 1].col)
       return
     endif
     let i += 1
   endwhile
-  call cursor(lnum - 1, strlen(getline(lnum-1)))
-  call s:ExecB()
+  let segcols = s:SegmentCol(getline(lnum-1))
+  call cursor(lnum - 1, segcols[len(segcols) - 1].col)
+endfunction
+
+" 行をsegmentに分割して、各segmentの文字列と開始colの配列を返す。
+" 'segmentStr1segmentStr2...'
+" => [{'segment':'segmentStr1','col':1},
+"     {'segment':'segmentStr2','col':12},...]
+function! s:SegmentCol(line)
+  let segs = tinysegmenter#{g:motionJaSeg_model}#segment(a:line)
+  if empty(segs)
+    return []
+  endif
+  let segcols = []
+  let col = 1
+  let i = 0
+  while i < len(segs)
+    call add(segcols, {'segment': segs[i], 'col': col})
+    let col += strlen(segs[i])
+    let i += 1
+  endwhile
+  return segcols
 endfunction
