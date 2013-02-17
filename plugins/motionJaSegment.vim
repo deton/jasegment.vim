@@ -31,8 +31,13 @@ noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
 function! s:ExecE()
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
-  if empty(segcols)
-    normal! E
+  if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
+    if lnum + 1 >= line('$')
+      normal! E
+      return
+    endif
+    call cursor(lnum + 1, 1)
+    call s:ExecE()
     return
   endif
   let curcol = col('.')
