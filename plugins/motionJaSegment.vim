@@ -41,10 +41,19 @@ function! s:ExecE()
     return
   endif
   let curcol = col('.')
+  let [dummy, spcol] = searchpos('[^[:space:]　][[:space:]　]', 'n', lnum)
+  if spcol == 0
+    let spcol = col('$')
+  endif
   let i = 0
   while i < len(segcols)
     let colend = segcols[i].colend
     if colend > curcol
+      " 空白文字が、segment末尾より前にあれば、空白文字の前に移動
+      if spcol < colend
+	call cursor(0, spcol)
+	return
+      endif
       call cursor(0, colend)
       if col('.') > curcol
 	return
@@ -71,58 +80,84 @@ function! s:ExecW()
     return
   endif
   let curcol = col('.')
+  let [dummy, spcol] = searchpos('[[:space:]　]\zs[^[:space:]　]', 'n', lnum)
+  if spcol == 0
+    let spcol = col('$')
+  endif
   let i = 0
   while i < len(segcols)
     let col = segcols[i].col
     if col > curcol
+      " 空白文字が、次segment開始より前にあれば、空白文字の後に移動
+      if spcol < col
+	call cursor(0, spcol)
+	return
+      endif
       call cursor(0, col)
       return
     endif
     let i += 1
   endwhile
-  " 行の最後のsegmentにいる場合、次行の最初のsegmentに移動
+  " 行の最後のsegmentにいる。
+  " 空白文字が、行末より前にあれば、空白文字の後に移動
+  if spcol < col('$')
+    call cursor(0, spcol)
+    return
+  endif
+  " 次行の最初のsegmentに移動
+  let lnum += 1
   " 次行が無い場合(最終行)は、beep
-  if lnum + 1 >= line('$')
+  if lnum >= line('$')
     normal! W
     return
   endif
-  let segcols = s:SegmentCol(getline(lnum + 1))
-  if empty(segcols)
-    call cursor(lnum + 1, 1)
-    return
-  endif
-  call cursor(lnum + 1, segcols[0].col)
+  call cursor(lnum, 1)
+  " 空白以外の文字まで移動
+  call search('[^[:space:]　]', 'c', lnum)
 endfunction
 
 function! s:ExecB()
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
-  if empty(segcols)
-    normal! B
-    return
+  " 空行でない && 現位置より前に空白以外がある場合
+  if !empty(segcols) && search('[^[:space:]　]', 'bn', lnum) > 0
+    let curcol = col('.')
+    let [dummy, spcol] = searchpos('[[:space:]　]\zs[^[:space:]　]', 'bn', lnum)
+    let i = len(segcols) - 1
+    while i >= 0
+      let col = segcols[i].col
+      if col < curcol
+	" 空白文字が、segment開始位置より後にあれば、空白文字の後に移動
+	if spcol > col
+	  call cursor(0, spcol)
+	  return
+	endif
+	call cursor(0, col)
+	return
+      endif
+      let i -= 1
+    endwhile
   endif
-  let curcol = col('.')
-  let i = len(segcols) - 1
-  while i >= 0
-    let col = segcols[i].col
-    if col < curcol
-      call cursor(0, col)
-      return
-    endif
-    let i -= 1
-  endwhile
-  " 行の最初の文節の場合、前の行の最後の文節に移動
+  " 行の最初のsegmentの場合、前行最後のsegmentの開始位置に移動
   " 前行が無い場合(先頭行)は、beep
   if lnum <= 1
     normal! B
     return
   endif
-  let segcols = s:SegmentCol(getline(lnum - 1))
-  if empty(segcols)
-    normal! B
+  let lnum -= 1
+  let [dummy, spcol] = searchpos('[[:space:]　]\zs[^[:space:]　]', 'bn', lnum)
+  let segcols = s:SegmentCol(getline(lnum))
+  if empty(segcols) " 空行
+    call cursor(lnum, 1)
     return
   endif
-  call cursor(lnum - 1, segcols[len(segcols) - 1].col)
+  let col = segcols[len(segcols) - 1].col
+  " 空白文字が、segment開始位置より後にあれば、空白文字の後に移動
+  if spcol > col
+    call cursor(lnum, spcol)
+    return
+  endif
+  call cursor(lnum, col)
 endfunction
 
 " 行をsegmentに分割して、各segmentの文字列と開始col、終了colの配列を返す。
