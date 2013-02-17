@@ -160,14 +160,23 @@ function! s:ExecB()
   call cursor(lnum, col)
 endfunction
 
+" 直前に分割したsegmentをキャッシュ
+let s:lastline = ''
+let s:lastsegcols = []
+
 " 行をsegmentに分割して、各segmentの文字列と開始col、終了colの配列を返す。
 " 'segmentStr1segmentStr2...'
 " => [{'segment':'segmentStr1','col':1,'colend':11},
 "     {'segment':'segmentStr2','col':12,'colend':22},...]
 function! s:SegmentCol(line)
+  if a:line ==# s:lastline
+    return s:lastsegcols
+  endif
+  let s:lastline = a:line
   let segs = tinysegmenter#{g:motionJaSegment_model}#segment(a:line)
   if empty(segs)
-    return []
+    let s:lastsegcols = []
+    return s:lastsegcols
   endif
   let segcols = []
   let col = 1
@@ -178,5 +187,6 @@ function! s:SegmentCol(line)
     let col = nextcol
     let i += 1
   endwhile
-  return segcols
+  let s:lastsegcols = segcols
+  return s:lastsegcols
 endfunction
