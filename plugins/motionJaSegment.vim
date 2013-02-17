@@ -30,18 +30,15 @@ noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
 
 function! s:ExecE()
   let lnum = line('.')
-  let line = getline(lnum)
-  let segs = tinysegmenter#{g:motionJaSeg_model}#segment(line)
-  if empty(segs)
+  let segcols = s:SegmentCol(getline(lnum))
+  if empty(segcols)
     normal! E
     return
   endif
   let curcol = col('.')
-  let col = 1
   let i = 0
-  while i < len(segs)
-    let inc = strlen(segs[i])
-    let col += strlen(segs[i])
+  while i < len(segcols)
+    let col = segcols[i].col
     if col > curcol
       call cursor(0, col - 1)
       if col('.') == curcol " 既に文節末尾にいる場合
@@ -61,17 +58,16 @@ function! s:ExecE()
 endfunction
 
 function! s:ExecW()
-  let line = getline('.')
   let curcol = col('.')
-  let segs = tinysegmenter#{g:motionJaSeg_model}#segment(line)
-  if empty(segs)
+  let segcols = s:SegmentCol(getline('.'))
+  if empty(segcols)
     normal! W
     return
   endif
   let col = 1
   let i = 0
-  while i < len(segs)
-    let col += strlen(segs[i])
+  while i < len(segcols)
+    let col = segcols[i].col
     if col > curcol
       call cursor(0, col)
       if col('.') == curcol
@@ -87,28 +83,20 @@ endfunction
 
 function! s:ExecB()
   let lnum = line('.')
-  let line = getline(lnum)
-  let segs = tinysegmenter#{g:motionJaSeg_model}#segment(line)
-  if empty(segs)
+  let segcols = s:SegmentCol(getline(lnum))
+  if empty(segcols)
     normal! B
     return
   endif
   let curcol = col('.')
   let col = 1
-  let cols = []
   let i = 0
-  while i < len(segs)
-    let col += strlen(segs[i])
-    call add(cols, col)
-    if col > curcol
+  while i < len(segcols)
+    let col = segcols[i].col
+    if col >= curcol
       if i > 0
-	call cursor(0, cols[i-1])
+	call cursor(0, segcols[i-1].col)
 	if col('.') < curcol
-	  return
-	endif
-	" col('.') == curcol: 既に文節先頭の場合、前の文節に移動
-	if i > 1
-	  call cursor(0, cols[i-2])
 	  return
 	endif
       endif
@@ -117,22 +105,22 @@ function! s:ExecB()
 	normal! B
 	return
       endif
-      let segcols = s:SegmentCol(getline(lnum - 1))
-      if empty(segcols)
+      let prevsegcols = s:SegmentCol(getline(lnum - 1))
+      if empty(prevsegcols)
 	normal! B
 	return
       endif
-      call cursor(lnum - 1, segcols[len(segcols) - 1].col)
+      call cursor(lnum - 1, prevsegcols[len(prevsegcols) - 1].col)
       return
     endif
     let i += 1
   endwhile
-  let segcols = s:SegmentCol(getline(lnum - 1))
-  if empty(segcols)
+  let prevsegcols = s:SegmentCol(getline(lnum - 1))
+  if empty(prevsegcols)
     normal! B
     return
   endif
-  call cursor(lnum - 1, segcols[len(segcols) - 1].col)
+  call cursor(lnum - 1, prevsegcols[len(prevsegcols) - 1].col)
 endfunction
 
 " 行をsegmentに分割して、各segmentの文字列と開始colの配列を返す。
