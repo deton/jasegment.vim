@@ -38,23 +38,16 @@ function! s:ExecE()
   let curcol = col('.')
   let i = 0
   while i < len(segcols)
-    let col = segcols[i].col
-    if col > curcol
-      call cursor(0, col - 1)
-      if col('.') == curcol " 既にsegment末尾にいる場合
-	let i += 1
-	continue
+    let colend = segcols[i].colend
+    if colend > curcol
+      call cursor(0, colend)
+      if col('.') > curcol
+	return
       endif
-      return
+      " else 既にsegment末尾にいた場合、次のsegment末尾に移動
     endif
     let i += 1
   endwhile
-  " 行の最後のsegmentにいる場合、行末に移動
-  let col = segcols[i-1].col + strlen(segcols[i-1].segment)
-  call cursor(0, col)
-  if col('.') > curcol
-    return
-  endif
   " 既に行末にいた場合、次行の最初のsegmentの末尾に移動
   " 次行が無い場合(最終行)は、beep
   if lnum + 1 >= line('$')
@@ -127,10 +120,10 @@ function! s:ExecB()
   call cursor(lnum - 1, segcols[len(segcols) - 1].col)
 endfunction
 
-" 行をsegmentに分割して、各segmentの文字列と開始colの配列を返す。
+" 行をsegmentに分割して、各segmentの文字列と開始col、終了colの配列を返す。
 " 'segmentStr1segmentStr2...'
-" => [{'segment':'segmentStr1','col':1},
-"     {'segment':'segmentStr2','col':12},...]
+" => [{'segment':'segmentStr1','col':1,'colend':11},
+"     {'segment':'segmentStr2','col':12,'colend':22},...]
 function! s:SegmentCol(line)
   let segs = tinysegmenter#{g:motionJaSegment_model}#segment(a:line)
   if empty(segs)
@@ -140,8 +133,9 @@ function! s:SegmentCol(line)
   let col = 1
   let i = 0
   while i < len(segs)
-    call add(segcols, {'segment': segs[i], 'col': col})
-    let col += strlen(segs[i])
+    let nextcol = col + strlen(segs[i])
+    call add(segcols, {'segment': segs[i], 'col': col, 'colend': nextcol - 1})
+    let col = nextcol
     let i += 1
   endwhile
   return segcols
