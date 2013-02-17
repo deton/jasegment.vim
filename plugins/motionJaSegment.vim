@@ -118,12 +118,20 @@ function! s:ExecB()
 	return
       endif
       let segcols = s:SegmentCol(getline(lnum - 1))
+      if empty(segcols)
+	normal! B
+	return
+      endif
       call cursor(lnum - 1, segcols[len(segcols) - 1].col)
       return
     endif
     let i += 1
   endwhile
-  let segcols = s:SegmentCol(getline(lnum-1))
+  let segcols = s:SegmentCol(getline(lnum - 1))
+  if empty(segcols)
+    normal! B
+    return
+  endif
   call cursor(lnum - 1, segcols[len(segcols) - 1].col)
 endfunction
 
