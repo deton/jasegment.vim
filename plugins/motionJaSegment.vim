@@ -64,7 +64,6 @@ function! s:ExecW()
     normal! W
     return
   endif
-  let col = 1
   let i = 0
   while i < len(segcols)
     let col = segcols[i].col
@@ -89,32 +88,20 @@ function! s:ExecB()
     return
   endif
   let curcol = col('.')
-  let col = 1
-  let i = 0
-  while i < len(segcols)
+  let i = len(segcols) - 1
+  while i >= 0
     let col = segcols[i].col
-    if col >= curcol
-      if i > 0
-	call cursor(0, segcols[i-1].col)
-	if col('.') < curcol
-	  return
-	endif
-      endif
-      " 行の最初の文節の場合、前の行の最後の文節に移動
-      if lnum <= 1
-	normal! B
-	return
-      endif
-      let prevsegcols = s:SegmentCol(getline(lnum - 1))
-      if empty(prevsegcols)
-	normal! B
-	return
-      endif
-      call cursor(lnum - 1, prevsegcols[len(prevsegcols) - 1].col)
+    if col < curcol
+      call cursor(0, col)
       return
     endif
-    let i += 1
+    let i -= 1
   endwhile
+  " 行の最初の文節の場合、前の行の最後の文節に移動
+  if lnum <= 1
+    normal! B
+    return
+  endif
   let prevsegcols = s:SegmentCol(getline(lnum - 1))
   if empty(prevsegcols)
     normal! B
