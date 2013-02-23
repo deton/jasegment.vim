@@ -41,19 +41,10 @@ function! s:ExecE()
     return
   endif
   let curcol = col('.')
-  let [dummy, spcol] = searchpos('[^[:space:]　][[:space:]　]', 'n', lnum)
-  if spcol == 0
-    let spcol = col('$')
-  endif
   let i = 0
   while i < len(segcols)
     let colend = segcols[i].colend
     if colend > curcol
-      " 空白文字が、segment末尾より前にあれば、空白文字の前に移動
-      if spcol < colend
-	call cursor(0, spcol)
-	return
-      endif
       call cursor(0, colend)
       if col('.') > curcol
 	return
@@ -80,30 +71,16 @@ function! s:ExecW()
     return
   endif
   let curcol = col('.')
-  let [dummy, spcol] = searchpos('[[:space:]　]\zs[^[:space:]　]', 'n', lnum)
-  if spcol == 0
-    let spcol = col('$')
-  endif
   let i = 0
   while i < len(segcols)
     let col = segcols[i].col
     if col > curcol
-      " 空白文字が、次segment開始より前にあれば、空白文字の後に移動
-      if spcol < col
-	call cursor(0, spcol)
-	return
-      endif
       call cursor(0, col)
       return
     endif
     let i += 1
   endwhile
   " 行の最後のsegmentにいる。
-  " 空白文字が、行末より前にあれば、空白文字の後に移動
-  if spcol < col('$')
-    call cursor(0, spcol)
-    return
-  endif
   " 次行の最初のsegmentに移動
   let lnum += 1
   " 次行が無い場合(最終行)は、beep
@@ -122,16 +99,10 @@ function! s:ExecB()
   " 空行でない && 現位置より前に空白以外がある場合
   if !empty(segcols) && search('[^[:space:]　]', 'bn', lnum) > 0
     let curcol = col('.')
-    let [dummy, spcol] = searchpos('[[:space:]　]\zs[^[:space:]　]', 'bn', lnum)
     let i = len(segcols) - 1
     while i >= 0
       let col = segcols[i].col
       if col < curcol
-	" 空白文字が、segment開始位置より後にあれば、空白文字の後に移動
-	if spcol > col
-	  call cursor(0, spcol)
-	  return
-	endif
 	call cursor(0, col)
 	return
       endif
@@ -145,18 +116,12 @@ function! s:ExecB()
     return
   endif
   let lnum -= 1
-  let [dummy, spcol] = searchpos('[[:space:]　]\zs[^[:space:]　]', 'bn', lnum)
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols) " 空行
     call cursor(lnum, 1)
     return
   endif
   let col = segcols[len(segcols) - 1].col
-  " 空白文字が、segment開始位置より後にあれば、空白文字の後に移動
-  if spcol > col
-    call cursor(lnum, spcol)
-    return
-  endif
   call cursor(lnum, col)
 endfunction
 
@@ -166,25 +131,54 @@ let s:lastsegcols = []
 
 " 行をsegmentに分割して、各segmentの文字列と開始col、終了colの配列を返す。
 " 'segmentStr1segmentStr2...'
-" => [{'segment':'segmentStr1','col':1,'colend':11},
-"     {'segment':'segmentStr2','col':12,'colend':22},...]
+" => [{'segment':'segmentStr1','col':1,'colend':12},
+"     {'segment':'segmentStr2','col':13,'colend':24},...]
 function! s:SegmentCol(line)
   if a:line ==# s:lastline
     return s:lastsegcols
   endif
   let s:lastline = a:line
-  let segs = tinysegmenter#{g:motionJaSegment_model}#segment(a:line)
-  if empty(segs)
+  " まずスペース区切りのsegmentに分割
+  let spsegs = split(a:line, '[[:space:]　]\+\zs')
+  if empty(spsegs)
     let s:lastsegcols = []
     return s:lastsegcols
   endif
-  let segcols = []
+  let spsegcols = []
   let col = 1
   let i = 0
-  while i < len(segs)
-    let nextcol = col + strlen(segs[i])
-    call add(segcols, {'segment': segs[i], 'col': col, 'colend': nextcol - 1})
+  " スペース区切りの各segment内に日本語が含まれていたら、文節区切り
+  while i < len(spsegs)
+    let seglen = strlen(spsegs[i])
+    let nextcol = col + seglen
+    let spseg = substitute(spsegs[i], '[[:space:]　]', '', 'g')
+    if spseg =~ '[^[:graph:]]'
+      let segs = tinysegmenter#{g:motionJaSegment_model}#segment(spseg)
+    else
+      let segs = [spseg]
+    endif
+    call add(spsegcols, {'segment': segs, 'col': col})
     let col = nextcol
+    let i += 1
+  endwhile
+  " スペース区切りsegment内の文節区切りを展開する。
+  "    [{'segment':['jaSeg1','jaSeg2'],'col':1},
+  "     {'segment':['enSeg'],'col':13},...]
+  " => [{'segment':'jaSeg1','col':1,'colend':6},
+  "     {'segment':'jaSeg2','col':7,'colend':12},
+  "     {'segment':'enSeg','col':13,'colend':17},...]
+  let segcols = []
+  let i = 0
+  while i < len(spsegcols)
+    let seg = spsegcols[i].segment
+    let col = spsegcols[i].col
+    let j = 0
+    while j < len(seg)
+      let nextcol = col + strlen(seg[j])
+      call add(segcols, {'segment': seg[j], 'col': col, 'colend': nextcol - 1})
+      let col = nextcol
+      let j += 1
+    endwhile
     let i += 1
   endwhile
   let s:lastsegcols = segcols
