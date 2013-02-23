@@ -24,12 +24,17 @@ if !exists('motionJaSegment_model')
   let motionJaSegment_model = 'knbc_bunsetu'
 endif
 
-noremap <silent> <Plug>MotionJaSegE :call <SID>ExecE()<CR>
-noremap <silent> <Plug>MotionJaSegW :call <SID>ExecW()<CR>
-noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
+ noremap <silent> <Plug>MotionJaSegE  :call <SID>ExecE(0, 0)<CR>
+vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>ExecE(1, 0)<CR>
+ noremap <silent> <Plug>MotionJaSegW  :call <SID>ExecW()<CR>
+ noremap <silent> <Plug>MotionJaSegB  :call <SID>ExecB()<CR>
 
-function! s:ExecE()
-  let lnum = line('.')
+function! s:ExecE(visualmode, recursive)
+  let curpos = getpos('.')
+  if a:visualmode && a:recursive == 0
+    let s:otherpos = s:GetVisualOtherPos(curpos)
+  endif
+  let lnum = curpos[1]
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
     if lnum + 1 >= line('$')
@@ -37,10 +42,10 @@ function! s:ExecE()
       return
     endif
     call cursor(lnum + 1, 1)
-    call s:ExecE()
+    call s:ExecE(a:visualmode, 1)
     return
   endif
-  let curcol = col('.')
+  let curcol = curpos[2]
   let i = 0
   while i < len(segcols)
     let colend = segcols[i].colend
@@ -49,7 +54,11 @@ function! s:ExecE()
       if mode(1) == 'no'
 	let colend += 1
       endif
-      call cursor(0, colend)
+      if a:visualmode
+	keepjumps call cursor(s:otherpos[1], s:otherpos[2])
+	execute 'normal! ' . visualmode()
+      endif
+      call cursor(lnum, colend)
       if col('.') > curcol
 	return
       endif
@@ -64,7 +73,7 @@ function! s:ExecE()
     return
   endif
   call cursor(lnum + 1, 1)
-  call s:ExecE()
+  call s:ExecE(a:visualmode, 1)
 endfunction
 
 function! s:ExecW()
@@ -188,4 +197,13 @@ function! s:SegmentCol(line)
   endwhile
   let s:lastsegcols = segcols
   return s:lastsegcols
+endfunction
+
+" ビジュアルモードのother endの位置を取得
+function s:GetVisualOtherPos(cur)
+  let ed = getpos("'>")
+  if ed == a:cur
+    return getpos("'<")
+  endif
+  return ed
 endfunction
