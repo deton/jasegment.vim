@@ -24,7 +24,7 @@ if !exists('motionJaSegment_model')
   let motionJaSegment_model = 'knbc_bunsetu'
 endif
 
-noremap <silent> <Plug>MotionJaSegE :call <SID>ExecE(0, 0)<CR>
+noremap <silent> <Plug>MotionJaSegE :call <SID>ExecE()<CR>
 noremap <silent> <Plug>MotionJaSegW :call <SID>ExecW()<CR>
 noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
 " 一度<Esc>で抜けてcursor posをセット
