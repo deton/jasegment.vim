@@ -24,17 +24,25 @@ if !exists('motionJaSegment_model')
   let motionJaSegment_model = 'knbc_bunsetu'
 endif
 
- noremap <silent> <Plug>MotionJaSegE  :call <SID>ExecE(0, 0)<CR>
-vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>ExecE(1, 0)<CR>
- noremap <silent> <Plug>MotionJaSegW  :call <SID>ExecW()<CR>
- noremap <silent> <Plug>MotionJaSegB  :call <SID>ExecB()<CR>
+noremap <silent> <Plug>MotionJaSegE :call <SID>ExecE(0, 0)<CR>
+noremap <silent> <Plug>MotionJaSegW :call <SID>ExecW()<CR>
+noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
+" 一度<Esc>で抜けてcursor posをセット
+" (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
+"  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
+vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>ExecVE()<CR>
 
-function! s:ExecE(visualmode, recursive)
-  let curpos = getpos('.')
-  if a:visualmode && a:recursive == 0
-    let s:otherpos = s:GetVisualOtherPos(curpos)
-  endif
-  let lnum = curpos[1]
+function! s:ExecVE()
+  let otherpos = s:GetVisualOtherPos()
+  call s:ExecE()
+  let pos = getpos('.')
+  call cursor(otherpos[1], otherpos[2])
+  execute 'normal! ' . visualmode()
+  call cursor(pos[1], pos[2])
+endfunction
+
+function! s:ExecE()
+  let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
     if lnum + 1 >= line('$')
@@ -42,10 +50,10 @@ function! s:ExecE(visualmode, recursive)
       return
     endif
     call cursor(lnum + 1, 1)
-    call s:ExecE(a:visualmode, 1)
+    call s:ExecE()
     return
   endif
-  let curcol = curpos[2]
+  let curcol = col('.')
   let i = 0
   while i < len(segcols)
     let colend = segcols[i].colend
@@ -54,11 +62,7 @@ function! s:ExecE(visualmode, recursive)
       if mode(1) == 'no'
 	let colend += 1
       endif
-      if a:visualmode
-	keepjumps call cursor(s:otherpos[1], s:otherpos[2])
-	execute 'normal! ' . visualmode()
-      endif
-      call cursor(lnum, colend)
+      call cursor(0, colend)
       if col('.') > curcol
 	return
       endif
@@ -73,7 +77,7 @@ function! s:ExecE(visualmode, recursive)
     return
   endif
   call cursor(lnum + 1, 1)
-  call s:ExecE(a:visualmode, 1)
+  call s:ExecE()
 endfunction
 
 function! s:ExecW()
@@ -200,9 +204,9 @@ function! s:SegmentCol(line)
 endfunction
 
 " ビジュアルモードのother endの位置を取得
-function s:GetVisualOtherPos(cur)
+function s:GetVisualOtherPos()
   let ed = getpos("'>")
-  if ed == a:cur
+  if ed == getpos('.')
     return getpos("'<")
   endif
   return ed
