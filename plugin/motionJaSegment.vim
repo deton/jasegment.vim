@@ -30,11 +30,13 @@ noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
-vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>ExecVE()<CR>
+vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>ExecV(function('<SID>ExecE'))<CR>
+vnoremap <silent> <Plug>MotionJaSegVW <Esc>:call <SID>ExecV(function('<SID>ExecW'))<CR>
+vnoremap <silent> <Plug>MotionJaSegVB <Esc>:call <SID>ExecV(function('<SID>ExecB'))<CR>
 
-function! s:ExecVE()
+function! s:ExecV(func)
   let otherpos = s:GetVisualOtherPos()
-  call s:ExecE()
+  call a:func()
   let pos = getpos('.')
   call cursor(otherpos[1], otherpos[2])
   execute 'normal! ' . visualmode()
