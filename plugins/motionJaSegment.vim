@@ -1,18 +1,18 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
 "
-" plugins/motionJaSegment.vim - E,W,B¤Ç¤Î°ÜÆ°¤òÊ¸ÀáÃ±°Ì¤Ë¤¹¤ë¤¿¤á¤Î¥¹¥¯¥ê¥×¥È¡£
+" plugins/motionJaSegment.vim - E,W,Bã§ã®ç§»å‹•ã‚’æ–‡ç¯€å˜ä½ã«ã™ã‚‹ãŸã‚ã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆã€‚
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-17
+" Last Change: 2013-02-23
 
-scriptencoding euc-jp
+scriptencoding utf-8
 
 " Description:
-" * ÆüËÜ¸ìÊ¸¾Ï¾å¤Ç¤ÎE,W,B¤Ç¤Î°ÜÆ°ÎÌ¤ò¡¢Ê¸ÀáÃ±°Ì¤Ë¤·¤Ş¤¹¡£
+" * æ—¥æœ¬èªæ–‡ç« ä¸Šã§ã®E,W,Bã§ã®ç§»å‹•é‡ã‚’ã€æ–‡ç¯€å˜ä½ã«ã—ã¾ã™ã€‚
 "
-" ¥ª¥×¥·¥ç¥ó:
+" ã‚ªãƒ—ã‚·ãƒ§ãƒ³:
 "    'g:loaded_motionJaSegment'
-"       ¤³¤Î¥×¥é¥°¥¤¥ó¤òÆÉ¤ß¹ş¤ß¤¿¤¯¤Ê¤¤¾ì¹ç¤Ë¼¡¤Î¤è¤¦¤ËÀßÄê¤¹¤ë¡£
+"       ã“ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’èª­ã¿è¾¼ã¿ãŸããªã„å ´åˆã«æ¬¡ã®ã‚ˆã†ã«è¨­å®šã™ã‚‹ã€‚
 "         let g:loaded_motionJaSegment = 1
 
 if exists('g:loaded_motionJaSegment')
@@ -31,7 +31,7 @@ noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
 function! s:ExecE()
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
-  if empty(segcols) " ¶õ¹Ô¤Î¾ì¹ç¡¢¼¡¹ÔºÇ½é¤Îsegment¤ÎËöÈø¤Ë°ÜÆ°
+  if empty(segcols) " ç©ºè¡Œã®å ´åˆã€æ¬¡è¡Œæœ€åˆã®segmentã®æœ«å°¾ã«ç§»å‹•
     if lnum + 1 >= line('$')
       normal! E
       return
@@ -41,7 +41,7 @@ function! s:ExecE()
     return
   endif
   let curcol = col('.')
-  let [dummy, spcol] = searchpos('[^[:space:]¡¡][[:space:]¡¡]', 'n', lnum)
+  let [dummy, spcol] = searchpos('[^[:space:]ã€€][[:space:]ã€€]', 'n', lnum)
   if spcol == 0
     let spcol = col('$')
   endif
@@ -49,7 +49,7 @@ function! s:ExecE()
   while i < len(segcols)
     let colend = segcols[i].colend
     if colend > curcol
-      " ¶õÇòÊ¸»ú¤¬¡¢segmentËöÈø¤è¤êÁ°¤Ë¤¢¤ì¤Ğ¡¢¶õÇòÊ¸»ú¤ÎÁ°¤Ë°ÜÆ°
+      " ç©ºç™½æ–‡å­—ãŒã€segmentæœ«å°¾ã‚ˆã‚Šå‰ã«ã‚ã‚Œã°ã€ç©ºç™½æ–‡å­—ã®å‰ã«ç§»å‹•
       if spcol < colend
 	call cursor(0, spcol)
 	return
@@ -58,12 +58,12 @@ function! s:ExecE()
       if col('.') > curcol
 	return
       endif
-      " else ´û¤ËsegmentËöÈø¤Ë¤¤¤¿¾ì¹ç¡¢¼¡¤ÎsegmentËöÈø¤Ë°ÜÆ°
+      " else æ—¢ã«segmentæœ«å°¾ã«ã„ãŸå ´åˆã€æ¬¡ã®segmentæœ«å°¾ã«ç§»å‹•
     endif
     let i += 1
   endwhile
-  " ´û¤Ë¹ÔËö¤Ë¤¤¤¿¾ì¹ç¡¢¼¡¹Ô¤ÎºÇ½é¤Îsegment¤ÎËöÈø¤Ë°ÜÆ°
-  " ¼¡¹Ô¤¬Ìµ¤¤¾ì¹ç(ºÇ½ª¹Ô)¤Ï¡¢beep
+  " æ—¢ã«è¡Œæœ«ã«ã„ãŸå ´åˆã€æ¬¡è¡Œã®æœ€åˆã®segmentã®æœ«å°¾ã«ç§»å‹•
+  " æ¬¡è¡ŒãŒç„¡ã„å ´åˆ(æœ€çµ‚è¡Œ)ã¯ã€beep
   if lnum + 1 >= line('$')
     normal! E
     return
@@ -80,7 +80,7 @@ function! s:ExecW()
     return
   endif
   let curcol = col('.')
-  let [dummy, spcol] = searchpos('[[:space:]¡¡]\zs[^[:space:]¡¡]', 'n', lnum)
+  let [dummy, spcol] = searchpos('[[:space:]ã€€]\zs[^[:space:]ã€€]', 'n', lnum)
   if spcol == 0
     let spcol = col('$')
   endif
@@ -88,7 +88,7 @@ function! s:ExecW()
   while i < len(segcols)
     let col = segcols[i].col
     if col > curcol
-      " ¶õÇòÊ¸»ú¤¬¡¢¼¡segment³«»Ï¤è¤êÁ°¤Ë¤¢¤ì¤Ğ¡¢¶õÇòÊ¸»ú¤Î¸å¤Ë°ÜÆ°
+      " ç©ºç™½æ–‡å­—ãŒã€æ¬¡segmenté–‹å§‹ã‚ˆã‚Šå‰ã«ã‚ã‚Œã°ã€ç©ºç™½æ–‡å­—ã®å¾Œã«ç§»å‹•
       if spcol < col
 	call cursor(0, spcol)
 	return
@@ -98,36 +98,36 @@ function! s:ExecW()
     endif
     let i += 1
   endwhile
-  " ¹Ô¤ÎºÇ¸å¤Îsegment¤Ë¤¤¤ë¡£
-  " ¶õÇòÊ¸»ú¤¬¡¢¹ÔËö¤è¤êÁ°¤Ë¤¢¤ì¤Ğ¡¢¶õÇòÊ¸»ú¤Î¸å¤Ë°ÜÆ°
+  " è¡Œã®æœ€å¾Œã®segmentã«ã„ã‚‹ã€‚
+  " ç©ºç™½æ–‡å­—ãŒã€è¡Œæœ«ã‚ˆã‚Šå‰ã«ã‚ã‚Œã°ã€ç©ºç™½æ–‡å­—ã®å¾Œã«ç§»å‹•
   if spcol < col('$')
     call cursor(0, spcol)
     return
   endif
-  " ¼¡¹Ô¤ÎºÇ½é¤Îsegment¤Ë°ÜÆ°
+  " æ¬¡è¡Œã®æœ€åˆã®segmentã«ç§»å‹•
   let lnum += 1
-  " ¼¡¹Ô¤¬Ìµ¤¤¾ì¹ç(ºÇ½ª¹Ô)¤Ï¡¢beep
+  " æ¬¡è¡ŒãŒç„¡ã„å ´åˆ(æœ€çµ‚è¡Œ)ã¯ã€beep
   if lnum >= line('$')
     normal! W
     return
   endif
   call cursor(lnum, 1)
-  " ¶õÇò°Ê³°¤ÎÊ¸»ú¤Ş¤Ç°ÜÆ°
-  call search('[^[:space:]¡¡]', 'c', lnum)
+  " ç©ºç™½ä»¥å¤–ã®æ–‡å­—ã¾ã§ç§»å‹•
+  call search('[^[:space:]ã€€]', 'c', lnum)
 endfunction
 
 function! s:ExecB()
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
-  " ¶õ¹Ô¤Ç¤Ê¤¤ && ¸½°ÌÃÖ¤è¤êÁ°¤Ë¶õÇò°Ê³°¤¬¤¢¤ë¾ì¹ç
-  if !empty(segcols) && search('[^[:space:]¡¡]', 'bn', lnum) > 0
+  " ç©ºè¡Œã§ãªã„ && ç¾ä½ç½®ã‚ˆã‚Šå‰ã«ç©ºç™½ä»¥å¤–ãŒã‚ã‚‹å ´åˆ
+  if !empty(segcols) && search('[^[:space:]ã€€]', 'bn', lnum) > 0
     let curcol = col('.')
-    let [dummy, spcol] = searchpos('[[:space:]¡¡]\zs[^[:space:]¡¡]', 'bn', lnum)
+    let [dummy, spcol] = searchpos('[[:space:]ã€€]\zs[^[:space:]ã€€]', 'bn', lnum)
     let i = len(segcols) - 1
     while i >= 0
       let col = segcols[i].col
       if col < curcol
-	" ¶õÇòÊ¸»ú¤¬¡¢segment³«»Ï°ÌÃÖ¤è¤ê¸å¤Ë¤¢¤ì¤Ğ¡¢¶õÇòÊ¸»ú¤Î¸å¤Ë°ÜÆ°
+	" ç©ºç™½æ–‡å­—ãŒã€segmenté–‹å§‹ä½ç½®ã‚ˆã‚Šå¾Œã«ã‚ã‚Œã°ã€ç©ºç™½æ–‡å­—ã®å¾Œã«ç§»å‹•
 	if spcol > col
 	  call cursor(0, spcol)
 	  return
@@ -138,21 +138,21 @@ function! s:ExecB()
       let i -= 1
     endwhile
   endif
-  " ¹Ô¤ÎºÇ½é¤Îsegment¤Î¾ì¹ç¡¢Á°¹ÔºÇ¸å¤Îsegment¤Î³«»Ï°ÌÃÖ¤Ë°ÜÆ°
-  " Á°¹Ô¤¬Ìµ¤¤¾ì¹ç(ÀèÆ¬¹Ô)¤Ï¡¢beep
+  " è¡Œã®æœ€åˆã®segmentã®å ´åˆã€å‰è¡Œæœ€å¾Œã®segmentã®é–‹å§‹ä½ç½®ã«ç§»å‹•
+  " å‰è¡ŒãŒç„¡ã„å ´åˆ(å…ˆé ­è¡Œ)ã¯ã€beep
   if lnum <= 1
     normal! B
     return
   endif
   let lnum -= 1
-  let [dummy, spcol] = searchpos('[[:space:]¡¡]\zs[^[:space:]¡¡]', 'bn', lnum)
+  let [dummy, spcol] = searchpos('[[:space:]ã€€]\zs[^[:space:]ã€€]', 'bn', lnum)
   let segcols = s:SegmentCol(getline(lnum))
-  if empty(segcols) " ¶õ¹Ô
+  if empty(segcols) " ç©ºè¡Œ
     call cursor(lnum, 1)
     return
   endif
   let col = segcols[len(segcols) - 1].col
-  " ¶õÇòÊ¸»ú¤¬¡¢segment³«»Ï°ÌÃÖ¤è¤ê¸å¤Ë¤¢¤ì¤Ğ¡¢¶õÇòÊ¸»ú¤Î¸å¤Ë°ÜÆ°
+  " ç©ºç™½æ–‡å­—ãŒã€segmenté–‹å§‹ä½ç½®ã‚ˆã‚Šå¾Œã«ã‚ã‚Œã°ã€ç©ºç™½æ–‡å­—ã®å¾Œã«ç§»å‹•
   if spcol > col
     call cursor(lnum, spcol)
     return
@@ -160,11 +160,11 @@ function! s:ExecB()
   call cursor(lnum, col)
 endfunction
 
-" Ä¾Á°¤ËÊ¬³ä¤·¤¿segment¤ò¥­¥ã¥Ã¥·¥å
+" ç›´å‰ã«åˆ†å‰²ã—ãŸsegmentã‚’ã‚­ãƒ£ãƒƒã‚·ãƒ¥
 let s:lastline = ''
 let s:lastsegcols = []
 
-" ¹Ô¤òsegment¤ËÊ¬³ä¤·¤Æ¡¢³Æsegment¤ÎÊ¸»úÎó¤È³«»Ïcol¡¢½ªÎ»col¤ÎÇÛÎó¤òÊÖ¤¹¡£
+" è¡Œã‚’segmentã«åˆ†å‰²ã—ã¦ã€å„segmentã®æ–‡å­—åˆ—ã¨é–‹å§‹colã€çµ‚äº†colã®é…åˆ—ã‚’è¿”ã™ã€‚
 " 'segmentStr1segmentStr2...'
 " => [{'segment':'segmentStr1','col':1,'colend':11},
 "     {'segment':'segmentStr2','col':12,'colend':22},...]
