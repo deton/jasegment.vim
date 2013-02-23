@@ -45,6 +45,10 @@ function! s:ExecE()
   while i < len(segcols)
     let colend = segcols[i].colend
     if colend > curcol
+      " cEの場合、+1する必要あり
+      if mode(1) == 'no'
+	let colend += 1
+      endif
       call cursor(0, colend)
       if col('.') > curcol
 	return
