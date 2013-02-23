@@ -206,8 +206,28 @@ endfunction
 " ビジュアルモードのother endの位置を取得
 function s:GetVisualOtherPos()
   let ed = getpos("'>")
-  if ed == getpos('.')
+  " Visual modeで$で移動すると、'>はcol('$')になる
+  if s:IsCurrentPos(ed)
     return getpos("'<")
   endif
   return ed
+endfunction
+
+function! s:IsCurrentPos(pos)
+  let cur = getpos('.')
+  if a:pos == cur
+    return 1
+  endif
+  if a:pos[1] != cur[1]
+    return 0
+  endif
+  " posがcol('$')の場合、行末の文字上の位置にして比較(curは行末の文字上なので)
+  if a:pos[2] != col('$')
+    return 0
+  endif
+  let lastchar = matchstr(getline(a:pos[1]), '.$')
+  if lastchar == ''
+    return 0
+  endif
+  return a:pos[2] - strlen(lastchar) == cur[2]
 endfunction
