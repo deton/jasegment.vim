@@ -139,7 +139,8 @@ function! s:SegmentCol(line)
   endif
   let s:lastline = a:line
   " まずスペース区切りのsegmentに分割
-  let spsegs = split(a:line, '[[:space:]　]\+\zs')
+  " TinySegmenterで"。"の後で切ってくれないことがあるので自分で分割
+  let spsegs = split(a:line, '\%([[:space:]　]\+\|[、。]\+\)\zs')
   if empty(spsegs)
     let s:lastsegcols = []
     return s:lastsegcols
