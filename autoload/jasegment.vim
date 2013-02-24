@@ -66,3 +66,16 @@ function! jasegment#SegmentCol(model_name, line)
   let s:cache[a:model_name] = {'line': a:line, 'segcols': segcols}
   return segcols
 endfunction
+
+" col位置のsegmentを取得する
+function! jasegment#GetCurrentSegment(model_name, linestr, col)
+  let segcols = jasegment#SegmentCol(a:model_name, a:linestr)
+  let i = 0
+  while i < len(segcols)
+    if segcols[i].col > a:col
+      return segcols[i - 1]
+    endif
+    let i += 1
+  endwhile
+  return segcols[i - 1]
+endfunction
