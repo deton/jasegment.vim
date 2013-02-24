@@ -121,7 +121,13 @@ function! s:ExecW(dummy)
   let lnum += 1
   " 次行が無い場合(最終行)は、beep
   if lnum >= line('$')
-    normal! W
+    if mode(1) != 'no'
+      normal! W
+      return
+    endif
+    call cursor(lnum - 1, curcol)
+    normal! v
+    call cursor(0, col('$'))
     return
   endif
   call cursor(lnum, 1)
