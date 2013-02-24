@@ -100,9 +100,10 @@ function! s:ExecE(recursive)
 endfunction
 
 function! s:ExecW(dummy)
-  if mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1
+  if mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
+    " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
     return s:ExecE(0)
   endif
   let lnum = line('.')
@@ -122,17 +123,18 @@ function! s:ExecW(dummy)
     let i += 1
   endwhile
   " 行の最後のsegmentにいる。
+  if mode(1) == 'no'
+    " dW等の場合、次行の最初のsegmentでなく、行末までを対象にする。|WORD|
+    call cursor(lnum, curcol)
+    normal! v
+    call cursor(0, col('$') - 1)
+    return
+  endif
   " 次行の最初のsegmentに移動
   let lnum += 1
   " 次行が無い場合(最終行)は、beep
   if lnum >= line('$')
-    if mode(1) != 'no'
-      normal! W
-      return
-    endif
-    call cursor(lnum - 1, curcol)
-    normal! v
-    call cursor(0, col('$'))
+    normal! W
     return
   endif
   call cursor(lnum, 1)
