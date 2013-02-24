@@ -34,26 +34,24 @@ vnoremap <silent> <Plug>MotionJaSegVW <Esc>:call <SID>ExecV(function('<SID>ExecW
 vnoremap <silent> <Plug>MotionJaSegVB <Esc>:call <SID>ExecV(function('<SID>ExecB'))<CR>
 
 function! s:ExecN(func)
+  let s:origpos = getpos('.')
   let cnt = v:count1
   while cnt > 0
-    call a:func(0)
+    call a:func()
     let cnt -= 1
   endwhile
 endfunction
 
 function! s:ExecV(func)
   let otherpos = s:GetVisualOtherPos()
-  call a:func(0)
+  call a:func()
   let pos = getpos('.')
   call cursor(otherpos[1], otherpos[2])
   execute 'normal! ' . visualmode()
   call cursor(pos[1], pos[2])
 endfunction
 
-function! s:ExecE(recursive)
-  if a:recursive == 0
-    let s:origpos = getpos('.')
-  endif
+function! s:ExecE()
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
@@ -62,7 +60,7 @@ function! s:ExecE(recursive)
       return
     endif
     call cursor(lnum + 1, 1)
-    call s:ExecE(1)
+    call s:ExecE()
     return
   endif
   let curcol = col('.')
@@ -104,15 +102,15 @@ function! s:ExecE(recursive)
     return
   endif
   call cursor(lnum + 1, 1)
-  call s:ExecE(1)
+  call s:ExecE()
 endfunction
 
-function! s:ExecW(dummy)
+function! s:ExecW()
   if mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
-    return s:ExecE(0)
+    return s:ExecE()
   endif
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
@@ -133,7 +131,7 @@ function! s:ExecW(dummy)
   " 行の最後のsegmentにいる。
   " dW等の場合、次行の最初のsegmentでなく、行末までを対象にする。|WORD|
   if mode(1) == 'no'
-    call cursor(lnum, curcol)
+    call setpos('.', s:origpos)
     normal! v
     call cursor(0, col('$') - 1)
     return
@@ -150,7 +148,7 @@ function! s:ExecW(dummy)
   call search('[^[:space:]　]', 'c', lnum)
 endfunction
 
-function! s:ExecB(dummy)
+function! s:ExecB()
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   " 空行でない && 現位置より前に空白以外がある場合
