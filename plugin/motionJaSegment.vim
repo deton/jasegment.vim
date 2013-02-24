@@ -100,8 +100,9 @@ function! s:ExecE(recursive)
 endfunction
 
 function! s:ExecW(dummy)
-  if mode(1) == 'no' && v:operator == 'c'
+  if mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
+    " ただし、空白文字上でない場合。|WORD|
     return s:ExecE(0)
   endif
   let lnum = line('.')
