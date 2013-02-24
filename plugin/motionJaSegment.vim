@@ -115,7 +115,7 @@ function! s:ExecE(cW, dummy)
 endfunction
 
 function! s:ExecW(dummy, lastcount)
-  if mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
+  if mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd() && a:lastcount
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
