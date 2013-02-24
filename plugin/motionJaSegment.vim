@@ -37,21 +37,21 @@ function! s:ExecN(func)
   let s:origpos = getpos('.')
   let cnt = v:count1
   while cnt > 0
-    call a:func()
+    call a:func(0)
     let cnt -= 1
   endwhile
 endfunction
 
 function! s:ExecV(func)
   let otherpos = s:GetVisualOtherPos()
-  call a:func()
+  call a:func(0)
   let pos = getpos('.')
   call cursor(otherpos[1], otherpos[2])
   execute 'normal! ' . visualmode()
   call cursor(pos[1], pos[2])
 endfunction
 
-function! s:ExecE()
+function! s:ExecE(cW)
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
@@ -60,13 +60,18 @@ function! s:ExecE()
       return
     endif
     call cursor(lnum + 1, 1)
-    call s:ExecE()
+    call s:ExecE(a:cW)
     return
   endif
   let curcol = col('.')
   let i = 0
   while i < len(segcols)
     let colend = segcols[i].colend
+    " cWでカーソルがsegment末尾にある場合、末尾の文字を対象にする
+    if colend == curcol && a:cW
+      call cursor(0, colend + 1)
+      return
+    endif
     if colend > curcol
       " cE等の場合、+1する必要あり
       if mode(1) == 'no'
@@ -102,15 +107,15 @@ function! s:ExecE()
     return
   endif
   call cursor(lnum + 1, 1)
-  call s:ExecE()
+  call s:ExecE(a:cW)
 endfunction
 
-function! s:ExecW()
+function! s:ExecW(dummy)
   if mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
-    return s:ExecE()
+    return s:ExecE(1)
   endif
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
@@ -148,7 +153,7 @@ function! s:ExecW()
   call search('[^[:space:]　]', 'c', lnum)
 endfunction
 
-function! s:ExecB()
+function! s:ExecB(dummy)
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   " 空行でない && 現位置より前に空白以外がある場合
