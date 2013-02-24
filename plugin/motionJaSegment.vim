@@ -1,12 +1,11 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
-"
+scriptencoding utf-8
+
 " plugins/motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-23
-
-scriptencoding utf-8
-
+" Last Change: 2013-02-24
+"
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
 "
@@ -24,9 +23,9 @@ if !exists('motionJaSegment_model')
   let motionJaSegment_model = 'knbc_bunsetu'
 endif
 
-noremap <silent> <Plug>MotionJaSegE :call <SID>ExecE()<CR>
-noremap <silent> <Plug>MotionJaSegW :call <SID>ExecW()<CR>
-noremap <silent> <Plug>MotionJaSegB :call <SID>ExecB()<CR>
+noremap <silent> <Plug>MotionJaSegE :<C-U>call <SID>ExecE(0)<CR>
+noremap <silent> <Plug>MotionJaSegW :<C-U>call <SID>ExecW(0)<CR>
+noremap <silent> <Plug>MotionJaSegB :<C-U>call <SID>ExecB(0)<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
@@ -36,14 +35,17 @@ vnoremap <silent> <Plug>MotionJaSegVB <Esc>:call <SID>ExecV(function('<SID>ExecB
 
 function! s:ExecV(func)
   let otherpos = s:GetVisualOtherPos()
-  call a:func()
+  call a:func(0)
   let pos = getpos('.')
   call cursor(otherpos[1], otherpos[2])
   execute 'normal! ' . visualmode()
   call cursor(pos[1], pos[2])
 endfunction
 
-function! s:ExecE()
+function! s:ExecE(recursive)
+  if a:recursive == 0
+    let s:origpos = getpos('.')
+  endif
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
@@ -52,7 +54,7 @@ function! s:ExecE()
       return
     endif
     call cursor(lnum + 1, 1)
-    call s:ExecE()
+    call s:ExecE(1)
     return
   endif
   let curcol = col('.')
@@ -60,9 +62,19 @@ function! s:ExecE()
   while i < len(segcols)
     let colend = segcols[i].colend
     if colend > curcol
-      " cEの場合、+1する必要あり
+      " cE等の場合、+1する必要あり
       if mode(1) == 'no'
 	let colend += 1
+	" 移動先が行末の場合、行末までを対象にする(既に行末にいる場合は除く)
+	" (+1してもcursor()で移動すると行末の文字上になって、
+	" 行末の文字が対象外になるため、Visual modeで選択。|omap-info|)
+	if colend >= col('$') && !s:AtLineEnd()
+	  let colend -= 1
+	  call setpos('.', s:origpos)
+	  normal! v
+	  call cursor(lnum, colend)
+	  return
+	endif
       endif
       call cursor(0, colend)
       if col('.') > curcol
@@ -79,10 +91,10 @@ function! s:ExecE()
     return
   endif
   call cursor(lnum + 1, 1)
-  call s:ExecE()
+  call s:ExecE(1)
 endfunction
 
-function! s:ExecW()
+function! s:ExecW(dummy)
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols)
@@ -112,7 +124,7 @@ function! s:ExecW()
   call search('[^[:space:]　]', 'c', lnum)
 endfunction
 
-function! s:ExecB()
+function! s:ExecB(dummy)
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   " 空行でない && 現位置より前に空白以外がある場合
@@ -233,3 +245,17 @@ function! s:IsCurrentPos(pos)
   endif
   return a:pos[2] - strlen(lastchar) == cur[2]
 endfunction
+
+" 行末にカーソルがあるかどうか
+function! s:AtLineEnd()
+  let curcol = col('.')
+  if curcol == col('$') " 'virtualedit'の場合
+    return 1
+  endif
+  let line = getline('.')
+  if line == ''
+    return 1
+  endif
+  let lastchar = matchstr(line, '.$')
+  return curcol == col('$') - strlen(lastchar)
+endfunctio
