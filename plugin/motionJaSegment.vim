@@ -1,7 +1,7 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
 scriptencoding utf-8
 
-" plugins/motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
+" plugin/motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
 " Last Change: 2013-02-24
@@ -65,7 +65,7 @@ endfunction
 
 function! s:ExecE(cW, dummy)
   let lnum = line('.')
-  let segcols = s:SegmentCol(getline(lnum))
+  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
     if lnum + 1 >= line('$')
       normal! E
@@ -130,7 +130,7 @@ function! s:ExecW(dummy, lastcount)
     return s:ExecE(1, 0)
   endif
   let lnum = line('.')
-  let segcols = s:SegmentCol(getline(lnum))
+  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
   if empty(segcols)
     normal! W
     return
@@ -167,7 +167,7 @@ endfunction
 
 function! s:ExecB(dummy, dummy2)
   let lnum = line('.')
-  let segcols = s:SegmentCol(getline(lnum))
+  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
   " 空行でない && 現位置より前に空白以外がある場合
   if !empty(segcols) && search('[^[:space:]　]', 'bn', lnum) > 0
     let curcol = col('.')
@@ -188,74 +188,13 @@ function! s:ExecB(dummy, dummy2)
     return
   endif
   let lnum -= 1
-  let segcols = s:SegmentCol(getline(lnum))
+  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
   if empty(segcols) " 空行
     call cursor(lnum, 1)
     return
   endif
   let col = segcols[len(segcols) - 1].col
   call cursor(lnum, col)
-endfunction
-
-" 直前に分割したsegmentをキャッシュ
-let s:lastline = ''
-let s:lastsegcols = []
-
-" 行をsegmentに分割して、各segmentの文字列と開始col、終了colの配列を返す。
-" 'segmentStr1segmentStr2...'
-" => [{'segment':'segmentStr1','col':1,'colend':12},
-"     {'segment':'segmentStr2','col':13,'colend':24},...]
-function! s:SegmentCol(line)
-  if a:line ==# s:lastline
-    return s:lastsegcols
-  endif
-  let s:lastline = a:line
-  " まずスペース区切りのsegmentに分割
-  " TinySegmenterで"。"の後で切ってくれないことがあるので自分で分割
-  let spsegs = split(a:line, '\%([[:space:]　]\+\|[、。]\+\)\zs')
-  if empty(spsegs)
-    let s:lastsegcols = []
-    return s:lastsegcols
-  endif
-  let spsegcols = []
-  let col = 1
-  let i = 0
-  " スペース区切りの各segment内に日本語が含まれていたら、文節区切り
-  while i < len(spsegs)
-    let seglen = strlen(spsegs[i])
-    let nextcol = col + seglen
-    let spseg = substitute(spsegs[i], '[[:space:]　]', '', 'g')
-    if spseg =~ '[^[:graph:]]'
-      let segs = tinysegmenter#{g:motionJaSegment_model}#segment(spseg)
-    else
-      let segs = [spseg]
-    endif
-    call add(spsegcols, {'segment': segs, 'col': col})
-    let col = nextcol
-    let i += 1
-  endwhile
-  " スペース区切りsegment内の文節区切りを展開する。
-  "    [{'segment':['jaSeg1','jaSeg2'],'col':1},
-  "     {'segment':['enSeg'],'col':13},...]
-  " => [{'segment':'jaSeg1','col':1,'colend':6},
-  "     {'segment':'jaSeg2','col':7,'colend':12},
-  "     {'segment':'enSeg','col':13,'colend':17},...]
-  let segcols = []
-  let i = 0
-  while i < len(spsegcols)
-    let seg = spsegcols[i].segment
-    let col = spsegcols[i].col
-    let j = 0
-    while j < len(seg)
-      let nextcol = col + strlen(seg[j])
-      call add(segcols, {'segment': seg[j], 'col': col, 'colend': nextcol - 1})
-      let col = nextcol
-      let j += 1
-    endwhile
-    let i += 1
-  endwhile
-  let s:lastsegcols = segcols
-  return s:lastsegcols
 endfunction
 
 " ビジュアルモードのother endの位置を取得
