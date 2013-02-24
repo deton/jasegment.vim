@@ -68,12 +68,17 @@ function! s:ExecE(recursive)
 	" 移動先が行末の場合、行末までを対象にする(既に行末にいる場合は除く)
 	" (+1してもcursor()で移動すると行末の文字上になって、
 	" 行末の文字が対象外になるため、Visual modeで選択。|omap-info|)
-	if colend >= col('$') && !s:AtLineEnd()
-	  let colend -= 1
-	  call setpos('.', s:origpos)
-	  normal! v
-	  call cursor(lnum, colend)
-	  return
+	if colend >= col('$')
+	  if s:AtLineEnd() && lnum + 1 < line('$')
+	    " 既に行末いる && 最終行でない => 普通に移動 (最終行の場合、
+	    " 普通に移動するとbeepするだけなので、Visual mode使用)
+	  else
+	    let colend -= 1
+	    call setpos('.', s:origpos)
+	    normal! v
+	    call cursor(lnum, colend)
+	    return
+	  endif
 	endif
       endif
       call cursor(0, colend)
@@ -258,4 +263,4 @@ function! s:AtLineEnd()
   endif
   let lastchar = matchstr(line, '.$')
   return curcol == col('$') - strlen(lastchar)
-endfunctio
+endfunction
