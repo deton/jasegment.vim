@@ -23,15 +23,23 @@ if !exists('motionJaSegment_model')
   let motionJaSegment_model = 'knbc_bunsetu'
 endif
 
-noremap <silent> <Plug>MotionJaSegE :<C-U>call <SID>ExecE(0)<CR>
-noremap <silent> <Plug>MotionJaSegW :<C-U>call <SID>ExecW(0)<CR>
-noremap <silent> <Plug>MotionJaSegB :<C-U>call <SID>ExecB(0)<CR>
+noremap <silent> <Plug>MotionJaSegE :<C-U>call <SID>ExecN(function('<SID>ExecE'))<CR>
+noremap <silent> <Plug>MotionJaSegW :<C-U>call <SID>ExecN(function('<SID>ExecW'))<CR>
+noremap <silent> <Plug>MotionJaSegB :<C-U>call <SID>ExecN(function('<SID>ExecB'))<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
 vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>ExecV(function('<SID>ExecE'))<CR>
 vnoremap <silent> <Plug>MotionJaSegVW <Esc>:call <SID>ExecV(function('<SID>ExecW'))<CR>
 vnoremap <silent> <Plug>MotionJaSegVB <Esc>:call <SID>ExecV(function('<SID>ExecB'))<CR>
+
+function! s:ExecN(func)
+  let cnt = v:count1
+  while cnt > 0
+    call a:func(0)
+    let cnt -= 1
+  endwhile
+endfunction
 
 function! s:ExecV(func)
   let otherpos = s:GetVisualOtherPos()
@@ -123,8 +131,8 @@ function! s:ExecW(dummy)
     let i += 1
   endwhile
   " 行の最後のsegmentにいる。
+  " dW等の場合、次行の最初のsegmentでなく、行末までを対象にする。|WORD|
   if mode(1) == 'no'
-    " dW等の場合、次行の最初のsegmentでなく、行末までを対象にする。|WORD|
     call cursor(lnum, curcol)
     normal! v
     call cursor(0, col('$') - 1)
