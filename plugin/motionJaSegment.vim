@@ -100,6 +100,10 @@ function! s:ExecE(recursive)
 endfunction
 
 function! s:ExecW(dummy)
+  if mode(1) == 'no' && v:operator == 'c'
+    " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
+    return s:ExecE(0)
+  endif
   let lnum = line('.')
   let segcols = s:SegmentCol(getline(lnum))
   if empty(segcols)
