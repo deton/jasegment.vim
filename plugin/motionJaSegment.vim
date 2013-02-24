@@ -48,7 +48,15 @@ endfunction
 
 function! s:ExecV(func)
   let otherpos = s:GetVisualOtherPos()
-  call a:func(0, 1)
+  let cnt = v:prevcount
+  if cnt == 0
+    let cnt = 1
+  endif
+  while cnt > 0
+    " lastcountはOperator-pending modeのみ
+    call a:func(0, 0)
+    let cnt -= 1
+  endwhile
   let pos = getpos('.')
   call cursor(otherpos[1], otherpos[2])
   execute 'normal! ' . visualmode()
