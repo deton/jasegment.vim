@@ -155,9 +155,13 @@ function! s:ExecW(dummy, lastcount)
   endif
   " 次行の最初のsegmentに移動
   let lnum += 1
-  " 次行が無い場合(最終行)は、beep
+  " 次行が無い場合(最終行)は、行末に移動。既に行末の場合はbeep
   if lnum > line('$')
-    normal! W
+    if !s:AtLineEnd()
+      normal! $
+    else
+      normal! W
+    endif
     return
   endif
   call cursor(lnum, 1)
