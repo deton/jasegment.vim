@@ -4,7 +4,7 @@ scriptencoding utf-8
 " plugin/motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-24
+" Last Change: 2013-02-25
 "
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
@@ -67,7 +67,7 @@ function! s:ExecE(cW, dummy)
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
-    if lnum + 1 >= line('$')
+    if lnum + 1 > line('$')
       normal! E
       return
     endif
@@ -114,7 +114,7 @@ function! s:ExecE(cW, dummy)
   endwhile
   " 既に行末にいた場合、次行の最初のsegmentの末尾に移動
   " 次行が無い場合(最終行)は、beep
-  if lnum + 1 >= line('$')
+  if lnum + 1 > line('$')
     normal! E
     return
   endif
@@ -156,7 +156,7 @@ function! s:ExecW(dummy, lastcount)
   " 次行の最初のsegmentに移動
   let lnum += 1
   " 次行が無い場合(最終行)は、beep
-  if lnum >= line('$')
+  if lnum > line('$')
     normal! W
     return
   endif
