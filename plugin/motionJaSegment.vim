@@ -4,7 +4,7 @@ scriptencoding utf-8
 " plugin/motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-25
+" Last Change: 2013-02-26
 "
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
@@ -47,7 +47,6 @@ function! s:ExecN(func)
 endfunction
 
 function! s:ExecV(func)
-  let otherpos = s:GetVisualOtherPos()
   let cnt = v:prevcount
   if cnt == 0
     let cnt = 1
@@ -58,8 +57,7 @@ function! s:ExecV(func)
     let cnt -= 1
   endwhile
   let pos = getpos('.')
-  call cursor(otherpos[1], otherpos[2])
-  execute 'normal! ' . visualmode()
+  normal! gv
   call cursor(pos[1], pos[2])
 endfunction
 
@@ -199,35 +197,6 @@ function! s:ExecB(dummy, dummy2)
   endif
   let col = segcols[len(segcols) - 1].col
   call cursor(lnum, col)
-endfunction
-
-" ビジュアルモードのother endの位置を取得
-function s:GetVisualOtherPos()
-  let ed = getpos("'>")
-  " Visual modeで$で移動すると、'>はcol('$')になる
-  if s:IsCurrentPos(ed)
-    return getpos("'<")
-  endif
-  return ed
-endfunction
-
-function! s:IsCurrentPos(pos)
-  let cur = getpos('.')
-  if a:pos == cur
-    return 1
-  endif
-  if a:pos[1] != cur[1]
-    return 0
-  endif
-  " posがcol('$')の場合、行末の文字上の位置にして比較(curは行末の文字上なので)
-  if a:pos[2] != col('$')
-    return 0
-  endif
-  let lastchar = matchstr(getline(a:pos[1]), '.$')
-  if lastchar == ''
-    return 0
-  endif
-  return a:pos[2] - strlen(lastchar) == cur[2]
 endfunction
 
 " 行末にカーソルがあるかどうか
