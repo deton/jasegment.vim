@@ -28,6 +28,9 @@ endfunction
 
 function! s:select_i()
   let segcol = jasegment#GetCurrentSegment(g:textobj_jasegment_model, getline('.'), col('.'))
+  if empty(segcol)
+    return 0
+  endif
   call cursor(0, segcol.col)
   let st = getpos('.')
   call cursor(0, segcol.colend)

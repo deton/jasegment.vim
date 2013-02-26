@@ -4,7 +4,7 @@ scriptencoding utf-8
 " autoload/jasegment.vim - TinySegmenterを使って、日本語を文節や単語で分割
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-24
+" Last Change: 2013-02-26
 
 " 直前に分割したsegmentをキャッシュ
 let s:cache = {}
@@ -70,6 +70,9 @@ endfunction
 " col位置のsegmentを取得する
 function! jasegment#GetCurrentSegment(model_name, linestr, col)
   let segcols = jasegment#SegmentCol(a:model_name, a:linestr)
+  if empty(segcols)
+    return {}
+  endif
   let i = 0
   while i < len(segcols)
     if segcols[i].col > a:col
