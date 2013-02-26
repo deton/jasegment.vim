@@ -23,17 +23,17 @@ if !exists('motionJaSegment_model')
   let motionJaSegment_model = 'knbc_bunsetu'
 endif
 
-noremap <silent> <Plug>MotionJaSegE :<C-U>call <SID>ExecN(function('<SID>ExecE'))<CR>
-noremap <silent> <Plug>MotionJaSegW :<C-U>call <SID>ExecN(function('<SID>ExecW'))<CR>
-noremap <silent> <Plug>MotionJaSegB :<C-U>call <SID>ExecN(function('<SID>ExecB'))<CR>
+noremap <silent> <Plug>MotionJaSegE :<C-U>call <SID>MoveN(function('<SID>MoveE'))<CR>
+noremap <silent> <Plug>MotionJaSegW :<C-U>call <SID>MoveN(function('<SID>MoveW'))<CR>
+noremap <silent> <Plug>MotionJaSegB :<C-U>call <SID>MoveN(function('<SID>MoveB'))<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
-vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>ExecV(function('<SID>ExecE'))<CR>
-vnoremap <silent> <Plug>MotionJaSegVW <Esc>:call <SID>ExecV(function('<SID>ExecW'))<CR>
-vnoremap <silent> <Plug>MotionJaSegVB <Esc>:call <SID>ExecV(function('<SID>ExecB'))<CR>
+vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>MoveV(function('<SID>MoveE'))<CR>
+vnoremap <silent> <Plug>MotionJaSegVW <Esc>:call <SID>MoveV(function('<SID>MoveW'))<CR>
+vnoremap <silent> <Plug>MotionJaSegVB <Esc>:call <SID>MoveV(function('<SID>MoveB'))<CR>
 
-function! s:ExecN(func)
+function! s:MoveN(func)
   let s:origpos = getpos('.')
   let lastcount = 0
   let cnt = v:count1
@@ -46,7 +46,7 @@ function! s:ExecN(func)
   endwhile
 endfunction
 
-function! s:ExecV(func)
+function! s:MoveV(func)
   let cnt = v:prevcount
   if cnt == 0
     let cnt = 1
@@ -61,7 +61,7 @@ function! s:ExecV(func)
   call cursor(pos[1], pos[2])
 endfunction
 
-function! s:ExecE(cW, dummy)
+function! s:MoveE(cW, dummy)
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
@@ -70,7 +70,7 @@ function! s:ExecE(cW, dummy)
       return
     endif
     call cursor(lnum + 1, 1)
-    call s:ExecE(a:cW, 0)
+    call s:MoveE(a:cW, 0)
     return
   endif
   let curcol = col('.')
@@ -117,15 +117,15 @@ function! s:ExecE(cW, dummy)
     return
   endif
   call cursor(lnum + 1, 1)
-  call s:ExecE(a:cW, 0)
+  call s:MoveE(a:cW, 0)
 endfunction
 
-function! s:ExecW(dummy, lastcount)
+function! s:MoveW(dummy, lastcount)
   if a:lastcount && mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
-    return s:ExecE(1, 0)
+    return s:MoveE(1, 0)
   endif
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
@@ -167,7 +167,7 @@ function! s:ExecW(dummy, lastcount)
   call search('[^[:space:]　]', 'c', lnum)
 endfunction
 
-function! s:ExecB(dummy, dummy2)
+function! s:MoveB(dummy, dummy2)
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
   " 空行でない && 現位置より前に空白以外がある場合
