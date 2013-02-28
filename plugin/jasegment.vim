@@ -171,7 +171,7 @@ function! s:MoveW(dummy, lastcount)
   " 次行が無い場合(最終行)は、行末に移動。既に行末の場合はbeep
   if lnum > line('$')
     if !s:AtLineEnd()
-      normal! $
+      call cursor(0, col('$'))
     else
       normal! W
     endif
