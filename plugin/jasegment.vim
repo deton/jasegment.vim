@@ -23,6 +23,21 @@ if !exists('jasegment_model')
   let jasegment_model = 'knbc_bunsetu'
 endif
 
+" 指定行を、文節で分かち書きした内容に置換する。
+" (なお、連続する複数個のタブやスペースは全て1つのスペースに置換。
+" 主に文節区切り再学習用データ作成用)
+if !exists(":JaSegmentSplit")
+  command! -range JaSegmentSplit call <SID>Split(<line1>, <line2>)
+endif
+
+function! s:Split(line1, line2)
+  for lnum in range(a:line1, a:line2)
+    let segcols = jasegment#SegmentCol(g:jasegment_model, getline(lnum))
+    call map(segcols, 'get(v:val, "segment", "")')
+    call setline(lnum, join(segcols))
+  endfor
+endfunction
+
 noremap <silent> <Plug>JaSegmentMoveE :<C-U>call <SID>MoveN(function('<SID>MoveE'))<CR>
 noremap <silent> <Plug>JaSegmentMoveW :<C-U>call <SID>MoveN(function('<SID>MoveW'))<CR>
 noremap <silent> <Plug>JaSegmentMoveB :<C-U>call <SID>MoveN(function('<SID>MoveB'))<CR>
