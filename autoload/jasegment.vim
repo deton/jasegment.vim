@@ -20,8 +20,7 @@ function! jasegment#SegmentCol(model_name, line)
   endif
   let s:lastline = a:line
   " まずスペース区切りのsegmentに分割
-  " TinySegmenterで"。"の後で切ってくれないことがあるので自分で分割
-  let spsegs = split(a:line, '\%([[:space:]　]\+\|[^[:space:]　][\?、。]\+\)\zs')
+  let spsegs = split(a:line, '[[:space:]　]\+\zs')
   if empty(spsegs)
     let s:lastsegcols = []
     return s:lastsegcols
@@ -35,7 +34,13 @@ function! jasegment#SegmentCol(model_name, line)
     let spseg = substitute(spsegs[i], '[[:space:]　]', '', 'g')
     if spseg != ''
       if spseg =~ '[^[:graph:]]'
-	let segs = tinysegmenter#{a:model_name}#segment(spseg)
+	let js = tinysegmenter#{a:model_name}#segment(spseg)
+	" TinySegmenterで"。"の後で切ってくれないことがあるので自分で分割
+	let js2 = map(copy(js), 'split(v:val, "[^[:space:]　][\\?、。]\\+\\zs")')
+	let segs = []
+	for ar in js2
+	  call extend(segs, ar)
+	endfor
       else
 	let segs = [spseg]
       endif
