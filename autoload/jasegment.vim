@@ -36,7 +36,7 @@ function! jasegment#SegmentCol(model_name, line)
       if spseg =~ '[^[:graph:]]'
 	let js = tinysegmenter#{a:model_name}#segment(spseg)
 	" TinySegmenterで"。"の後で切ってくれないことがあるので自分で分割
-	call map(js, 'split(v:val, "[^[:space:]　][\\?、。]\\+\\zs")')
+	call map(js, 'split(v:val, ''[^[:space:]　][\?、。]\+\zs'')')
 	let segs = []
 	for ar in js
 	  call extend(segs, ar)
