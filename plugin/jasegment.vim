@@ -1,37 +1,37 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
 scriptencoding utf-8
 
-" plugin/motionJaSegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
+" plugin/jasegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-26
+" Last Change: 2013-02-28
 "
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
 "
 " オプション:
-"    'g:loaded_motionJaSegment'
+"    'g:loaded_jasegment'
 "       このプラグインを読み込みたくない場合に次のように設定する。
-"         let g:loaded_motionJaSegment = 1
+"         let g:loaded_jasegment = 1
 
-if exists('g:loaded_motionJaSegment')
+if exists('g:loaded_jasegment')
   finish
 endif
-let g:loaded_motionJaSegment = 1
+let g:loaded_jasegment = 1
 
-if !exists('motionJaSegment_model')
-  let motionJaSegment_model = 'knbc_bunsetu'
+if !exists('jasegment_model')
+  let jasegment_model = 'knbc_bunsetu'
 endif
 
-noremap <silent> <Plug>MotionJaSegE :<C-U>call <SID>MoveN(function('<SID>MoveE'))<CR>
-noremap <silent> <Plug>MotionJaSegW :<C-U>call <SID>MoveN(function('<SID>MoveW'))<CR>
-noremap <silent> <Plug>MotionJaSegB :<C-U>call <SID>MoveN(function('<SID>MoveB'))<CR>
+noremap <silent> <Plug>JaSegmentMoveE :<C-U>call <SID>MoveN(function('<SID>MoveE'))<CR>
+noremap <silent> <Plug>JaSegmentMoveW :<C-U>call <SID>MoveN(function('<SID>MoveW'))<CR>
+noremap <silent> <Plug>JaSegmentMoveB :<C-U>call <SID>MoveN(function('<SID>MoveB'))<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
-vnoremap <silent> <Plug>MotionJaSegVE <Esc>:call <SID>MoveV(function('<SID>MoveE'))<CR>
-vnoremap <silent> <Plug>MotionJaSegVW <Esc>:call <SID>MoveV(function('<SID>MoveW'))<CR>
-vnoremap <silent> <Plug>MotionJaSegVB <Esc>:call <SID>MoveV(function('<SID>MoveB'))<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVE <Esc>:call <SID>MoveV(function('<SID>MoveE'))<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVW <Esc>:call <SID>MoveV(function('<SID>MoveW'))<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVB <Esc>:call <SID>MoveV(function('<SID>MoveB'))<CR>
 
 function! s:MoveN(func)
   let s:origpos = getpos('.')
@@ -63,7 +63,7 @@ endfunction
 
 function! s:MoveE(cW, dummy)
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment_model, getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
     if lnum + 1 > line('$')
       normal! E
@@ -128,7 +128,7 @@ function! s:MoveW(dummy, lastcount)
     return s:MoveE(1, 0)
   endif
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment_model, getline(lnum))
   if empty(segcols)
     normal! W
     return
@@ -169,7 +169,7 @@ endfunction
 
 function! s:MoveB(dummy, dummy2)
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment_model, getline(lnum))
   " 空行でない && 現位置より前に空白以外がある場合
   if !empty(segcols) && search('[^[:space:]　]', 'bn', lnum) > 0
     let curcol = col('.')
@@ -190,7 +190,7 @@ function! s:MoveB(dummy, dummy2)
     return
   endif
   let lnum -= 1
-  let segcols = jasegment#SegmentCol(g:motionJaSegment_model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment_model, getline(lnum))
   if empty(segcols) " 空行
     call cursor(lnum, 1)
     return
