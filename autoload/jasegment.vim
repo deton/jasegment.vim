@@ -47,7 +47,7 @@ function! jasegment#MoveE(cW, dummy)
       return
     endif
     call cursor(lnum + 1, 1)
-    call s:MoveE(a:cW, 0)
+    call jasegment#MoveE(a:cW, 0)
     return
   endif
   let curcol = col('.')
@@ -94,7 +94,7 @@ function! jasegment#MoveE(cW, dummy)
     return
   endif
   call cursor(lnum + 1, 1)
-  call s:MoveE(a:cW, 0)
+  call jasegment#MoveE(a:cW, 0)
 endfunction
 
 function! jasegment#MoveW(dummy, islast)
@@ -102,7 +102,7 @@ function! jasegment#MoveW(dummy, islast)
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
-    return s:MoveE(1, 0)
+    return jasegment#MoveE(1, 0)
   endif
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
