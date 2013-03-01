@@ -9,10 +9,6 @@ let g:loaded_textobj_jasegment = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists('textobj_jasegment_model')
-  let textobj_jasegment_model = 'knbc_bunsetu'
-endif
-
 call textobj#user#plugin('jasegment', {
   \ 'bunsetu': {
     \ '*sfile*': expand('<sfile>'),
@@ -27,7 +23,7 @@ function! s:select_a()
 endfunction
 
 function! s:select_i()
-  let segcol = jasegment#GetCurrentSegment(g:textobj_jasegment_model, getline('.'), col('.'))
+  let segcol = jasegment#GetCurrentSegment(g:jasegment#model, getline('.'), col('.'))
   if empty(segcol)
     return 0
   endif
