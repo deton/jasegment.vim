@@ -12,13 +12,13 @@ endif
 
 function! jasegment#MoveN(func)
   let s:origpos = getpos('.')
-  let lastcount = 0
+  let islast = 0
   let cnt = v:count1
   while cnt > 0
     if cnt == 1
-      let lastcount = 1
+      let islast = 1
     endif
-    call a:func(0, lastcount)
+    call a:func(0, islast)
     let cnt -= 1
   endwhile
 endfunction
@@ -29,7 +29,7 @@ function! jasegment#MoveV(func)
     let cnt = 1
   endif
   while cnt > 0
-    " lastcountはOperator-pending modeのみ
+    " islastはOperator-pending modeのみ
     call a:func(0, 0)
     let cnt -= 1
   endwhile
@@ -97,8 +97,8 @@ function! jasegment#MoveE(cW, dummy)
   call s:MoveE(a:cW, 0)
 endfunction
 
-function! jasegment#MoveW(dummy, lastcount)
-  if a:lastcount && mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
+function! jasegment#MoveW(dummy, islast)
+  if a:islast && mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
@@ -122,7 +122,7 @@ function! jasegment#MoveW(dummy, lastcount)
   endwhile
   " 行の最後のsegmentにいる。
   " dW等の場合、次行の最初のsegmentでなく、行末までを対象にする。|WORD|
-  if mode(1) == 'no' && a:lastcount
+  if mode(1) == 'no' && a:islast
     call setpos('.', s:origpos)
     normal! v
     call cursor(0, col('$') - 1)
