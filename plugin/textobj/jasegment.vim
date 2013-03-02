@@ -19,7 +19,8 @@ call textobj#user#plugin('jasegment', {
 
 function! s:select_a()
   let spincluded = 0
-  if match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') != -1
+  let line = getline('.')
+  if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
     " 空白上の場合は、空白開始位置以降を対象に含める
     if search('[^[:space:]　]\zs[[:space:]　]', 'bce', line('.')) == 0
       call cursor(0, 1)
@@ -27,7 +28,7 @@ function! s:select_a()
     let spincluded = 1
   else
     " segment開始位置以降を対象に含める
-    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, getline('.'), col('.'))
+    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line, col('.'))
     if empty(segcol)
       return 0
     endif
