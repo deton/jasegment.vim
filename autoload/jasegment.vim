@@ -10,19 +10,25 @@ if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
 endif
 
-function! jasegment#MoveN(func, omode)
+" Move{E,W,B}をcountに対応させるためのラッパ
+" @param stay MoveE用。現位置がsegment末尾の場合、
+"  次segmentに移動したくない場合に1を指定。textobj用。
+function! jasegment#MoveN(func, omode, stay)
   let s:origpos = getpos('.')
+  let stay = a:stay
   let islast = 0
   let cnt = v:count1
   while cnt > 0
     if cnt == 1
       let islast = 1
     endif
-    call a:func(0, islast, a:omode)
+    call a:func(stay, islast, a:omode)
+    let stay = 0
     let cnt -= 1
   endwhile
 endfunction
 
+" Move{E,W,B}をVisual modeに対応させるためのラッパ
 function! jasegment#MoveV(func)
   let cnt = v:prevcount
   if cnt == 0

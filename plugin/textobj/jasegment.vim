@@ -35,7 +35,7 @@ function! s:select_a()
     call cursor(0, segcol.col)
   endif
   let st = getpos('.')
-  call jasegment#MoveN(function('jasegment#MoveE'), 0)
+  call jasegment#MoveN(function('jasegment#MoveE'), 0, 1)
   " 空白上でなかった場合、segment終了位置直後の連続する空白を対象に含める
   if !spincluded
     if search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.')) == 0
