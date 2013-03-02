@@ -38,7 +38,7 @@ function! jasegment#MoveV(func)
   call cursor(pos[1], pos[2])
 endfunction
 
-function! jasegment#MoveE(cW, dummy)
+function! jasegment#MoveE(stay, dummy)
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
@@ -47,19 +47,14 @@ function! jasegment#MoveE(cW, dummy)
       return
     endif
     call cursor(lnum + 1, 1)
-    call jasegment#MoveE(a:cW, 0)
+    call jasegment#MoveE(1, 0)
     return
   endif
   let curcol = col('.')
   let i = 0
   while i < len(segcols)
     let colend = segcols[i].colend
-    " cWでカーソルがsegment末尾にある場合、末尾の文字を対象にする
-    if colend == curcol && a:cW
-      call cursor(0, colend + 1)
-      return
-    endif
-    if colend > curcol
+    if colend >= curcol
       " cE等の場合、+1する必要あり
       if mode(1) == 'no'
 	let colend += 1
@@ -68,7 +63,7 @@ function! jasegment#MoveE(cW, dummy)
 	" 行末の文字が対象外になるため、Visual modeで選択。|omap-info|)
 	if colend >= col('$')
 	  if s:AtLineEnd() && lnum + 1 < line('$')
-	    " 既に行末いる && 最終行でない => 普通に移動 (最終行の場合、
+	    " 既に行末いる && 最終行でない => 普通に次行に移動 (最終行の場合、
 	    " 普通に移動するとbeepするだけなので、Visual mode使用)
 	  else
 	    let colend -= 1
@@ -83,7 +78,13 @@ function! jasegment#MoveE(cW, dummy)
       if col('.') > curcol
 	return
       endif
-      " else 既にsegment末尾にいた場合、次のsegment末尾に移動
+      " else 既にsegment末尾にいた場合
+      if a:stay
+	" 前行から移動してきた場合は、これ以上移動すると余分。
+	" cWでカーソルがsegment末尾にある場合は、末尾の文字を対象にする。
+	return
+      endif
+      " else 次のsegment末尾に移動
     endif
     let i += 1
   endwhile
@@ -94,7 +95,7 @@ function! jasegment#MoveE(cW, dummy)
     return
   endif
   call cursor(lnum + 1, 1)
-  call jasegment#MoveE(a:cW, 0)
+  call jasegment#MoveE(1, 0)
 endfunction
 
 function! jasegment#MoveW(dummy, islast)
