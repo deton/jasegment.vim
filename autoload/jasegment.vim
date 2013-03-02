@@ -4,13 +4,13 @@ scriptencoding utf-8
 " autoload/jasegment.vim - TinySegmenterを使って、日本語を文節や単語で分割
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-01
+" Last Change: 2013-03-02
 
 if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
 endif
 
-function! jasegment#MoveN(func)
+function! jasegment#MoveN(func, omode)
   let s:origpos = getpos('.')
   let islast = 0
   let cnt = v:count1
@@ -18,7 +18,7 @@ function! jasegment#MoveN(func)
     if cnt == 1
       let islast = 1
     endif
-    call a:func(0, islast)
+    call a:func(0, islast, a:omode)
     let cnt -= 1
   endwhile
 endfunction
@@ -30,7 +30,7 @@ function! jasegment#MoveV(func)
   endif
   while cnt > 0
     " islastはOperator-pending modeのみ
-    call a:func(0, 0)
+    call a:func(0, 0, 0)
     let cnt -= 1
   endwhile
   let pos = getpos('.')
@@ -38,7 +38,7 @@ function! jasegment#MoveV(func)
   call cursor(pos[1], pos[2])
 endfunction
 
-function! jasegment#MoveE(stay, dummy)
+function! jasegment#MoveE(stay, dummy, omode)
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
@@ -47,7 +47,7 @@ function! jasegment#MoveE(stay, dummy)
       return
     endif
     call cursor(lnum + 1, 1)
-    call jasegment#MoveE(1, 0)
+    call jasegment#MoveE(1, 0, a:omode)
     return
   endif
   let curcol = col('.')
@@ -56,7 +56,7 @@ function! jasegment#MoveE(stay, dummy)
     let colend = segcols[i].colend
     if colend >= curcol
       " cE等の場合、+1する必要あり
-      if mode(1) == 'no'
+      if a:omode
 	let colend += 1
 	" 移動先が行末の場合、行末までを対象にする(既に行末にいる場合は除く)
 	" (+1してもcursor()で移動すると行末の文字上になって、
@@ -95,15 +95,15 @@ function! jasegment#MoveE(stay, dummy)
     return
   endif
   call cursor(lnum + 1, 1)
-  call jasegment#MoveE(1, 0)
+  call jasegment#MoveE(1, 0, a:omode)
 endfunction
 
-function! jasegment#MoveW(dummy, islast)
-  if a:islast && mode(1) == 'no' && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
+function! jasegment#MoveW(dummy, islast, omode)
+  if a:islast && a:omode && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
-    return jasegment#MoveE(1, 0)
+    return jasegment#MoveE(1, 0, a:omode)
   endif
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
@@ -123,7 +123,7 @@ function! jasegment#MoveW(dummy, islast)
   endwhile
   " 行の最後のsegmentにいる。
   " dW等の場合、次行の最初のsegmentでなく、行末までを対象にする。|WORD|
-  if mode(1) == 'no' && a:islast
+  if a:omode && a:islast
     call setpos('.', s:origpos)
     normal! v
     call cursor(0, col('$') - 1)
@@ -145,7 +145,7 @@ function! jasegment#MoveW(dummy, islast)
   call search('[^[:space:]　]', 'c', lnum)
 endfunction
 
-function! jasegment#MoveB(dummy, dummy2)
+function! jasegment#MoveB(dummy, dummy2, dummy3)
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
   " 空行でない && 現位置より前に空白以外がある場合
