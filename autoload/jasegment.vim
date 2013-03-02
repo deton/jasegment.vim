@@ -13,11 +13,11 @@ endif
 " Move{E,W,B}をcountに対応させるためのラッパ
 " @param stay MoveE用。現位置がsegment末尾の場合、
 "  次segmentに移動したくない場合に1を指定。textobj用。
-function! jasegment#MoveN(func, omode, stay)
+function! jasegment#MoveN(func, cnt, omode, stay)
   let s:origpos = getpos('.')
   let stay = a:stay
   let islast = 0
-  let cnt = v:count1
+  let cnt = a:cnt
   while cnt > 0
     if cnt == 1
       let islast = 1

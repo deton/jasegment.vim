@@ -34,9 +34,9 @@ function! s:Split(line1, line2)
   endfor
 endfunction
 
-noremap <silent> <Plug>JaSegmentMoveE :<C-U>call jasegment#MoveN(function('jasegment#MoveE'), mode(1) == 'no', 0)<CR>
-noremap <silent> <Plug>JaSegmentMoveW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), mode(1) == 'no', 0)<CR>
-noremap <silent> <Plug>JaSegmentMoveB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), 0, 0)<CR>
+noremap <silent> <Plug>JaSegmentMoveE :<C-U>call jasegment#MoveN(function('jasegment#MoveE'), v:count1, mode(1) == 'no', 0)<CR>
+noremap <silent> <Plug>JaSegmentMoveW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, mode(1) == 'no', 0)<CR>
+noremap <silent> <Plug>JaSegmentMoveB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0)<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
@@ -44,18 +44,17 @@ vnoremap <silent> <Plug>JaSegmentMoveVE <Esc>:call jasegment#MoveV(function('jas
 vnoremap <silent> <Plug>JaSegmentMoveVW <Esc>:call jasegment#MoveV(function('jasegment#MoveW'))<CR>
 vnoremap <silent> <Plug>JaSegmentMoveVB <Esc>:call jasegment#MoveV(function('jasegment#MoveB'))<CR>
 
-onoremap <silent> <Plug>JaSegmentTextObjA :<C-U>call <SID>select_function_wrapper('<SID>select_a', 'o')<CR>
-vnoremap <silent> <Plug>JaSegmentTextObjVA :<C-U>call <SID>select_function_wrapper('<SID>select_a', 'v')<CR>
-onoremap <silent> <Plug>JaSegmentTextObjI :<C-U>call <SID>select_function_wrapper('<SID>select_i', 'o')<CR>
-vnoremap <silent> <Plug>JaSegmentTextObjVI :<C-U>call <SID>select_function_wrapper('<SID>select_i', 'v')<CR>
+onoremap <silent> <Plug>JaSegmentTextObjA :<C-U>call <SID>select_function_wrapper('<SID>select_a', 'o', v:count1)<CR>
+vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call <SID>select_function_wrapperv('<SID>select_a')<CR>
+onoremap <silent> <Plug>JaSegmentTextObjI :<C-U>call <SID>select_function_wrapper('<SID>select_i', 'o', v:count1)<CR>
+vnoremap <silent> <Plug>JaSegmentTextObjVI <Esc>:call <SID>select_function_wrapperv('<SID>select_i')<CR>
 
 " from vim-textobj-user
-" Visual modeでのcount指定に対応するために一部変更。
-function! s:select_function_wrapper(function_name, previous_mode)
+function! s:select_function_wrapper(function_name, previous_mode, count1)
   let ORIG_POS = getpos('.')
   " call s:prepare_selection(a:previous_mode) " countがクリアされるので省略
 
-  let _ = function(a:function_name)()
+  let _ = function(a:function_name)(a:count1)
   if _ is 0
     if a:previous_mode ==# 'v'
       normal! gv
@@ -71,7 +70,39 @@ function! s:select_function_wrapper(function_name, previous_mode)
   endif
 endfunction
 
-function! s:select_a()
+function! s:pos_lt(pos1, pos2)  " less than
+  return a:pos1[1] < a:pos2[1] || a:pos1[1] == a:pos2[1] && a:pos1[2] < a:pos2[2]
+endfunction
+
+" Visual modeでのcount指定に対応するために一部変更。
+function! s:select_function_wrapperv(function_name)
+  let cnt = v:prevcount
+  if cnt == 0
+    let cnt = 1
+  endif
+  " 何も選択されていない場合、textobj選択
+  let pos = getpos('.')
+  execute 'normal! gvo' . "\<Esc>"
+  let otherpos = getpos('.')
+  execute 'normal! gvo' . "\<Esc>"
+  if pos == otherpos
+    call s:select_function_wrapper(a:function_name, 'v', cnt)
+    return
+  endif
+  " 選択済の場合、E or Bで移動後、隣接する連続空白を含める
+  if s:pos_lt(pos, otherpos)
+    call jasegment#MoveN(function('jasegment#MoveB'), cnt, 0, 0)
+    call search('[[:space:]　]\+\%' . col('.') . 'c', 'bc', line('.'))
+  else
+    call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 0)
+    call search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.'))
+  endif
+  let newpos = getpos('.')
+  normal! gv
+  call setpos('.', newpos)
+endfunction
+
+function! s:select_a(count1)
   let spincluded = 0
   let line = getline('.')
   if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
@@ -89,7 +120,7 @@ function! s:select_a()
     call cursor(0, segcol.col)
   endif
   let st = getpos('.')
-  call jasegment#MoveN(function('jasegment#MoveE'), 0, 1)
+  call jasegment#MoveN(function('jasegment#MoveE'), a:count1, 0, 1)
   " 空白上でなかった場合、segment終了位置直後の連続する空白を対象に含める
   if !spincluded
     if search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.')) == 0
@@ -105,7 +136,7 @@ function! s:select_a()
   return ['v', st, ed]
 endfunction
 
-function! s:select_i()
+function! s:select_i(count1)
   let segcol = jasegment#GetCurrentSegment(g:jasegment#model, getline('.'), col('.'))
   if empty(segcol)
     return 0
