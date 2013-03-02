@@ -28,7 +28,7 @@ endif
 
 function! s:Split(line1, line2)
   for lnum in range(a:line1, a:line2)
-    let segcols = jasegment#SegmentCol(g:jasegment_model, getline(lnum))
+    let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
     call map(segcols, 'get(v:val, "segment", "")')
     call setline(lnum, join(segcols))
   endfor
