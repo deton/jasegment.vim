@@ -48,9 +48,9 @@ vnoremap <silent> <Plug>JaSegmentMoveVW <Esc>:call jasegment#MoveV(function('jas
 vnoremap <silent> <Plug>JaSegmentMoveVB <Esc>:call jasegment#MoveV(function('jasegment#MoveB'))<CR>
 
 onoremap <silent> <Plug>JaSegmentTextObjA :<C-U>call <SID>select_function_wrapper('<SID>select_a', 'o', v:count1)<CR>
-vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call <SID>select_function_wrapperv('<SID>select_a')<CR>
+vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call <SID>select_function_wrapperv('<SID>select_a', 0)<CR>
 onoremap <silent> <Plug>JaSegmentTextObjI :<C-U>call <SID>select_function_wrapper('<SID>select_i', 'o', v:count1)<CR>
-vnoremap <silent> <Plug>JaSegmentTextObjVI <Esc>:call <SID>select_function_wrapperv('<SID>select_i')<CR>
+vnoremap <silent> <Plug>JaSegmentTextObjVI <Esc>:call <SID>select_function_wrapperv('<SID>select_i', 1)<CR>
 
 " from vim-textobj-user
 function! s:select_function_wrapper(function_name, previous_mode, count1)
@@ -78,7 +78,7 @@ function! s:pos_lt(pos1, pos2)  " less than
 endfunction
 
 " Visual modeでのcount指定に対応するために一部変更。
-function! s:select_function_wrapperv(function_name)
+function! s:select_function_wrapperv(function_name, inner)
   let cnt = v:prevcount
   if cnt == 0
     let cnt = 1
@@ -92,13 +92,18 @@ function! s:select_function_wrapperv(function_name)
     call s:select_function_wrapper(a:function_name, 'v', cnt)
     return
   endif
-  " 選択済の場合、E or Bで移動後、隣接する連続空白を含める
+  " 選択済の場合、E or Bで移動後、"aW"の場合は隣接する連続空白を含める
+  " TODO: iWの場合に、単語間の連続空白をcountに含める
   if s:pos_lt(pos, otherpos)
-    call jasegment#MoveN(function('jasegment#MoveB'), cnt, 0, 0, 0)
-    call search('[[:space:]　]\+\%' . col('.') . 'c', 'bc', line('.'))
+    call jasegment#MoveN(function('jasegment#MoveB'), cnt, 0, 0, 1)
+    if !a:inner
+      call search('[[:space:]　]\+\%' . col('.') . 'c', 'bc', line('.'))
+    endif
   else
     call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 0, 0)
-    call search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.'))
+    if !a:inner
+      call search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.'))
+    endif
   endif
   let newpos = getpos('.')
   normal! gv
