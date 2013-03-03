@@ -4,7 +4,7 @@ scriptencoding utf-8
 " autoload/jasegment.vim - TinySegmenterを使って、日本語を文節や単語で分割
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-02
+" Last Change: 2013-03-03
 
 if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
@@ -13,7 +13,8 @@ endif
 " Move{E,W,B}をcountに対応させるためのラッパ
 " @param stay MoveE用。現位置がsegment末尾の場合、
 "  次segmentに移動したくない場合に1を指定。textobj用。
-function! jasegment#MoveN(func, cnt, omode, stay)
+" @param countspace iW用に、空白もcountに含める
+function! jasegment#MoveN(func, cnt, omode, stay, countspace)
   let s:origpos = getpos('.')
   let stay = a:stay
   let islast = 0
@@ -22,9 +23,13 @@ function! jasegment#MoveN(func, cnt, omode, stay)
     if cnt == 1
       let islast = 1
     endif
-    call a:func(stay, islast, a:omode)
+    let endcol = a:func(stay, islast, a:omode)
     let stay = 0
     let cnt -= 1
+    if a:countspace && endcol > 0 && cnt > 0
+      call cursor(0, endcol)
+      let cnt -= 1
+    endif
   endwhile
 endfunction
 
@@ -50,11 +55,10 @@ function! jasegment#MoveE(stay, dummy, omode)
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
     if lnum + 1 > line('$')
       normal! E
-      return
+      return 0
     endif
     call cursor(lnum + 1, 1)
-    call jasegment#MoveE(1, 0, a:omode)
-    return
+    return jasegment#MoveE(1, 0, a:omode)
   endif
   let curcol = col('.')
   let i = 0
@@ -76,19 +80,19 @@ function! jasegment#MoveE(stay, dummy, omode)
 	    call setpos('.', s:origpos)
 	    normal! v
 	    call cursor(lnum, colend)
-	    return
+	    return s:EndcolIncludeSpaces(segcols, i)
 	  endif
 	endif
       endif
       call cursor(0, colend)
       if col('.') > curcol
-	return
+	return s:EndcolIncludeSpaces(segcols, i)
       endif
       " else 既にsegment末尾にいた場合
       if a:stay
 	" 前行から移動してきた場合は、これ以上移動すると余分。
 	" cWでカーソルがsegment末尾にある場合は、末尾の文字を対象にする。
-	return
+	return s:EndcolIncludeSpaces(segcols, i)
       endif
       " else 次のsegment末尾に移動
     endif
@@ -98,10 +102,26 @@ function! jasegment#MoveE(stay, dummy, omode)
   " 次行が無い場合(最終行)は、beep
   if lnum + 1 > line('$')
     normal! E
-    return
+    return 0
   endif
   call cursor(lnum + 1, 1)
-  call jasegment#MoveE(1, 0, a:omode)
+  return jasegment#MoveE(1, 0, a:omode)
+endfunction
+
+" segment末尾の空白を含めた、segment終了位置を返す。
+" 末尾に空白が無い場合は0。
+" (textobjの|iW|向けに、空白を含めてcountできるようにするため)
+function! s:EndcolIncludeSpaces(segcols, idx)
+  let colend = a:segcols[a:idx].colend
+  if a:idx + 1 < len(a:segcols)
+    let nextcol = a:segcols[a:idx + 1].col
+  else
+    let nextcol = col('$')
+  endif
+  if colend + 1 >= nextcol
+    return 0 " 末尾に空白無し
+  endif
+  return nextcol - 1
 endfunction
 
 function! jasegment#MoveW(dummy, islast, omode)
@@ -115,7 +135,7 @@ function! jasegment#MoveW(dummy, islast, omode)
   let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
   if empty(segcols)
     normal! W
-    return
+    return 0
   endif
   let curcol = col('.')
   let i = 0
@@ -123,7 +143,7 @@ function! jasegment#MoveW(dummy, islast, omode)
     let col = segcols[i].col
     if col > curcol
       call cursor(0, col)
-      return
+      return 0
     endif
     let i += 1
   endwhile
@@ -133,7 +153,7 @@ function! jasegment#MoveW(dummy, islast, omode)
     call setpos('.', s:origpos)
     normal! v
     call cursor(0, col('$') - 1)
-    return
+    return 0
   endif
   " 次行の最初のsegmentに移動
   let lnum += 1
@@ -144,7 +164,7 @@ function! jasegment#MoveW(dummy, islast, omode)
     else
       normal! W
     endif
-    return
+    return 0
   endif
   call cursor(lnum, 1)
   " 空白以外の文字まで移動
@@ -162,7 +182,7 @@ function! jasegment#MoveB(dummy, dummy2, dummy3)
       let col = segcols[i].col
       if col < curcol
 	call cursor(0, col)
-	return
+	return 0
       endif
       let i -= 1
     endwhile
@@ -171,13 +191,13 @@ function! jasegment#MoveB(dummy, dummy2, dummy3)
   " 前行が無い場合(先頭行)は、beep
   if lnum <= 1
     normal! B
-    return
+    return 0
   endif
   let lnum -= 1
   let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
   if empty(segcols) " 空行
     call cursor(lnum, 1)
-    return
+    return 0
   endif
   let col = segcols[len(segcols) - 1].col
   call cursor(lnum, col)
@@ -277,4 +297,19 @@ function! jasegment#GetCurrentSegment(model_name, linestr, col)
     let i += 1
   endwhile
   return segcols[i - 1]
+endfunction
+
+" col位置のsegmentのindex番号を取得する
+function! jasegment#index(segcols, col)
+  if empty(segcols)
+    return -1
+  endif
+  let i = 0
+  while i < len(segcols)
+    if segcols[i].col > a:col
+      return i - 1
+    endif
+    let i += 1
+  endwhile
+  return i - 1
 endfunction

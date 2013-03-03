@@ -4,7 +4,7 @@ scriptencoding utf-8
 " plugin/jasegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-02
+" Last Change: 2013-03-03
 "
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
@@ -34,9 +34,9 @@ function! s:Split(line1, line2)
   endfor
 endfunction
 
-noremap <silent> <Plug>JaSegmentMoveE :<C-U>call jasegment#MoveN(function('jasegment#MoveE'), v:count1, mode(1) == 'no', 0)<CR>
-noremap <silent> <Plug>JaSegmentMoveW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, mode(1) == 'no', 0)<CR>
-noremap <silent> <Plug>JaSegmentMoveB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0)<CR>
+noremap <silent> <Plug>JaSegmentMoveE :<C-U>call jasegment#MoveN(function('jasegment#MoveE'), v:count1, mode(1) == 'no', 0, 0)<CR>
+noremap <silent> <Plug>JaSegmentMoveW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, mode(1) == 'no', 0, 0)<CR>
+noremap <silent> <Plug>JaSegmentMoveB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0, 0)<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
@@ -91,10 +91,10 @@ function! s:select_function_wrapperv(function_name)
   endif
   " 選択済の場合、E or Bで移動後、隣接する連続空白を含める
   if s:pos_lt(pos, otherpos)
-    call jasegment#MoveN(function('jasegment#MoveB'), cnt, 0, 0)
+    call jasegment#MoveN(function('jasegment#MoveB'), cnt, 0, 0, 0)
     call search('[[:space:]　]\+\%' . col('.') . 'c', 'bc', line('.'))
   else
-    call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 0)
+    call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 0, 0)
     call search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.'))
   endif
   let newpos = getpos('.')
@@ -107,7 +107,7 @@ function! s:select_a(count1)
   let line = getline('.')
   if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
     " 空白上の場合は、空白開始位置以降を対象に含める
-    if search('[^[:space:]　]\zs[[:space:]　]', 'bce', line('.')) == 0
+    if search('[^[:space:]　]\zs[[:space:]　]', 'bc', line('.')) == 0
       call cursor(0, 1)
     endif
     let spincluded = 1
@@ -120,7 +120,7 @@ function! s:select_a(count1)
     call cursor(0, segcol.col)
   endif
   let st = getpos('.')
-  call jasegment#MoveN(function('jasegment#MoveE'), a:count1, 0, 1)
+  call jasegment#MoveN(function('jasegment#MoveE'), a:count1, 0, 1, 0)
   " 空白上でなかった場合、segment終了位置直後の連続する空白を対象に含める
   if !spincluded
     if search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.')) == 0
@@ -137,13 +137,33 @@ function! s:select_a(count1)
 endfunction
 
 function! s:select_i(count1)
-  let segcol = jasegment#GetCurrentSegment(g:jasegment#model, getline('.'), col('.'))
-  if empty(segcol)
-    return 0
+  let cnt = a:count1
+  let line = getline('.')
+  if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
+    " 空白上の場合は、空白開始位置以降を対象に含める
+    if search('[^[:space:]　]\zs[[:space:]　]', 'bc', line('.')) == 0
+      call cursor(0, 1)
+    endif
+    let cnt -= 1
+    if cnt <= 0
+      " 連続する空白のみを対象にする
+      let st = getpos('.')
+      if search('[[:space:]　]\+\ze[^[:space:]　]', 'ce', line('.')) == 0
+	call cursor(0, col('$'))
+      endif
+      let ed = getpos('.')
+      return ['v', st, ed]
+    endif
+  else
+    " segment開始位置以降を対象に含める
+    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line, col('.'))
+    if empty(segcol)
+      return 0
+    endif
+    call cursor(0, segcol.col)
   endif
-  call cursor(0, segcol.col)
   let st = getpos('.')
-  call cursor(0, segcol.colend)
+  call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 1, 1)
   let ed = getpos('.')
   return ['v', st, ed]
 endfunction
