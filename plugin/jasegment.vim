@@ -175,3 +175,6 @@ function! s:select_i(count1)
   let ed = getpos('.')
   return ['v', st, ed]
 endfunction
+
+" hi def link jasegBeg Underlined
+hi def jasegBeg term=underline cterm=underline gui=underline

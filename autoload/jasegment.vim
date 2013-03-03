@@ -214,6 +214,7 @@ endfunction
 
 " 直前に分割したsegmentをキャッシュ
 let s:cache = {}
+let s:hl_id = 0
 
 " 行をsegmentに分割して、各segmentの文字列と開始col、終了colの配列を返す。
 " 'segmentStr1segmentStr2...'
@@ -224,12 +225,15 @@ function! jasegment#SegmentCol(model_name, line)
   if !empty(cache) && a:line ==# cache.line
     return cache.segcols
   endif
+  if s:hl_id != 0
+    silent! call matchdelete(s:hl_id)
+  endif
   let s:lastline = a:line
   " まずスペース区切りのsegmentに分割
   let spsegs = split(a:line, '[[:space:]　]\+\zs')
   if empty(spsegs)
-    let s:lastsegcols = []
-    return s:lastsegcols
+    let s:cache[a:model_name] = {'line': a:line, 'segcols': []}
+    return []
   endif
   let spsegcols = []
   let col = 1
@@ -274,8 +278,20 @@ function! jasegment#SegmentCol(model_name, line)
     endwhile
     let i += 1
   endwhile
+  call s:showmark(segcols)
   let s:cache[a:model_name] = {'line': a:line, 'segcols': segcols}
   return segcols
+endfunction
+
+" segment開始位置にunderlineを付ける
+function! s:showmark(segcols)
+  let lnum = line('.')
+  let marks = []
+  for segcol in a:segcols
+    let col = segcol.col
+    call add(marks, '\%' . lnum . 'l\%' . col . 'c')
+  endfor
+  let s:hl_id = matchadd('jasegBeg', join(marks, '\|'))
 endfunction
 
 " col位置のsegmentを取得する
