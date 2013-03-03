@@ -57,7 +57,7 @@ endfunction
 
 function! jasegment#MoveE(stay, dummy, omode)
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
     if lnum + 1 > line('$')
       normal! E
@@ -127,7 +127,7 @@ function! jasegment#MoveW(dummy, islast, omode)
     return jasegment#MoveE(1, 0, a:omode)
   endif
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
   if empty(segcols)
     normal! W
     return 0
@@ -168,7 +168,7 @@ endfunction
 
 function! jasegment#MoveB(dummy, dummy2, dummy3)
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
   " 空行でない && 現位置より前に空白以外がある場合
   if !empty(segcols) && search('[^[:space:]　]', 'bn', lnum) > 0
     let curcol = col('.')
@@ -189,7 +189,7 @@ function! jasegment#MoveB(dummy, dummy2, dummy3)
     return 0
   endif
   let lnum -= 1
-  let segcols = jasegment#SegmentCol(g:jasegment#model, getline(lnum))
+  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
   if empty(segcols) " 空行
     call cursor(lnum, 1)
     return 0
@@ -220,19 +220,19 @@ let s:hl_id = 0
 " 'segmentStr1segmentStr2...'
 " => [{'segment':'segmentStr1','col':1,'colend':12},
 "     {'segment':'segmentStr2','col':13,'colend':24},...]
-function! jasegment#SegmentCol(model_name, line)
+function! jasegment#SegmentCol(model_name, lnum)
+  let line = getline(a:lnum)
   let cache = get(s:cache, a:model_name, {})
-  if !empty(cache) && a:line ==# cache.line
+  if !empty(cache) && line ==# cache.line
     return cache.segcols
   endif
   if s:hl_id != 0
     silent! call matchdelete(s:hl_id)
   endif
-  let s:lastline = a:line
   " まずスペース区切りのsegmentに分割
-  let spsegs = split(a:line, '[[:space:]　]\+\zs')
+  let spsegs = split(line, '[[:space:]　]\+\zs')
   if empty(spsegs)
-    let s:cache[a:model_name] = {'line': a:line, 'segcols': []}
+    let s:cache[a:model_name] = {'line': line, 'segcols': []}
     return []
   endif
   let spsegcols = []
@@ -278,25 +278,24 @@ function! jasegment#SegmentCol(model_name, line)
     endwhile
     let i += 1
   endwhile
-  call s:showmark(segcols)
-  let s:cache[a:model_name] = {'line': a:line, 'segcols': segcols}
+  call s:showmark(segcols, a:lnum)
+  let s:cache[a:model_name] = {'line': line, 'segcols': segcols}
   return segcols
 endfunction
 
 " segment開始位置にunderlineを付ける
-function! s:showmark(segcols)
-  let lnum = line('.')
+function! s:showmark(segcols, lnum)
   let marks = []
   for segcol in a:segcols
     let col = segcol.col
-    call add(marks, '\%' . lnum . 'l\%' . col . 'c')
+    call add(marks, '\%' . a:lnum . 'l\%' . col . 'c')
   endfor
-  let s:hl_id = matchadd('jasegBeg', join(marks, '\|'))
+  let s:hl_id = matchadd('JaSegment', join(marks, '\|'))
 endfunction
 
 " col位置のsegmentを取得する
-function! jasegment#GetCurrentSegment(model_name, linestr, col)
-  let segcols = jasegment#SegmentCol(a:model_name, a:linestr)
+function! jasegment#GetCurrentSegment(model_name, lnum, col)
+  let segcols = jasegment#SegmentCol(a:model_name, a:lnum)
   if empty(segcols)
     return {}
   endif

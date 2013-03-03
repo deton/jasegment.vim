@@ -121,7 +121,7 @@ function! s:select_a(count1)
     let spincluded = 1
   else
     " segment開始位置以降を対象に含める
-    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line, col('.'))
+    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
     if empty(segcol)
       return 0
     endif
@@ -164,7 +164,7 @@ function! s:select_i(count1)
     endif
   else
     " segment開始位置以降を対象に含める
-    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line, col('.'))
+    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
     if empty(segcol)
       return 0
     endif
@@ -176,5 +176,5 @@ function! s:select_i(count1)
   return ['v', st, ed]
 endfunction
 
-" hi def link jasegBeg Underlined
-hi def jasegBeg term=underline cterm=underline gui=underline
+hi def link JaSegment Underlined
+" hi def JaSegment term=underline cterm=underline gui=underline
