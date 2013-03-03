@@ -34,9 +34,12 @@ function! s:Split(line1, line2)
   endfor
 endfunction
 
-noremap <silent> <Plug>JaSegmentMoveE :<C-U>call jasegment#MoveN(function('jasegment#MoveE'), v:count1, mode(1) == 'no', 0, 0)<CR>
-noremap <silent> <Plug>JaSegmentMoveW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, mode(1) == 'no', 0, 0)<CR>
-noremap <silent> <Plug>JaSegmentMoveB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNE :<C-U>call jasegment#MoveN(function('jasegment#MoveE'), v:count1, mode(1) == 'no', 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, mode(1) == 'no', 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0, 0)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOE :<C-U>call jasegment#MoveO(function('jasegment#MoveE'), v:count1)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, 1, 0, 0)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0, 0)<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)

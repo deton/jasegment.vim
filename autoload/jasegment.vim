@@ -33,6 +33,12 @@ function! jasegment#MoveN(func, cnt, omode, stay, countspace)
   endwhile
 endfunction
 
+" MoveEをOperator-pending modeに対応させるためのラッパ
+function! jasegment#MoveO(func, cnt)
+  normal! v
+  call jasegment#MoveN(a:func, a:cnt, 1, 0, 0)
+endfunction
+
 " Move{E,W,B}をVisual modeに対応させるためのラッパ
 function! jasegment#MoveV(func)
   let cnt = v:prevcount
@@ -64,26 +70,11 @@ function! jasegment#MoveE(stay, dummy, omode)
   let i = 0
   while i < len(segcols)
     let colend = segcols[i].colend
-    if colend >= curcol
-      " cE等の場合、+1する必要あり
-      if a:omode
-	let colend += 1
-	" 移動先が行末の場合、行末までを対象にする(既に行末にいる場合は除く)
-	" (+1してもcursor()で移動すると行末の文字上になって、
-	" 行末の文字が対象外になるため、Visual modeで選択。|omap-info|)
-	if colend >= col('$')
-	  if s:AtLineEnd() && lnum + 1 < line('$')
-	    " 既に行末いる && 最終行でない => 普通に次行に移動 (最終行の場合、
-	    " 普通に移動するとbeepするだけなので、Visual mode使用)
-	  else
-	    let colend -= 1
-	    call setpos('.', s:origpos)
-	    normal! v
-	    call cursor(lnum, colend)
-	    return s:EndcolIncludeSpaces(segcols, i)
-	  endif
-	endif
-      endif
+    if colend == curcol && a:stay
+      call cursor(0, colend)
+      return s:EndcolIncludeSpaces(segcols, i)
+    endif
+    if colend > curcol
       call cursor(0, colend)
       if col('.') > curcol
 	return s:EndcolIncludeSpaces(segcols, i)
@@ -129,6 +120,10 @@ function! jasegment#MoveW(dummy, islast, omode)
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
     " 行末の文字上の場合は、cEと違って行末までを対象にする。|WORD|
+    let curpos = getpos('.')
+    call setpos('.', s:origpos)
+    normal! v
+    call setpos('.', curpos)
     return jasegment#MoveE(1, 0, a:omode)
   endif
   let lnum = line('.')
