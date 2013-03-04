@@ -9,6 +9,9 @@ scriptencoding utf-8
 if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
 endif
+if !exists('g:jasegment#model_word')
+  let g:jasegment#model_word = 'rwcp'
+endif
 " 文節開始位置にunderlineを付けるかどうか
 if !exists('g:jasegment#highlight')
   let g:jasegment#highlight = 0
@@ -477,17 +480,20 @@ function! jasegment#GetCurrentSegment(model_name, lnum, col)
   return segcols[i - 1]
 endfunction
 
-" col位置のsegmentのindex番号を取得する
-function! jasegment#index(segcols, col)
-  if empty(segcols)
-    return -1
+" カーソル位置の文節文字列を取得する
+function! jasegment#cWORD()
+  let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
+  if empty(segcol)
+    return ''
   endif
-  let i = 0
-  while i < len(segcols)
-    if segcols[i].col > a:col
-      return i - 1
-    endif
-    let i += 1
-  endwhile
-  return i - 1
+  return segcol.segment
+endfunction
+
+" カーソル位置の単語文字列を取得する
+function! jasegment#cword()
+  let segcol = jasegment#GetCurrentSegment(g:jasegment#model_word, line('.'), col('.'))
+  if empty(segcol)
+    return ''
+  endif
+  return segcol.segment
 endfunction
