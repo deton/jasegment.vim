@@ -4,11 +4,19 @@ scriptencoding utf-8
 " autoload/jasegment.vim - TinySegmenterを使って、日本語を文節や単語で分割
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-03
+" Last Change: 2013-03-04
 
 if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
 endif
+
+function! jasegment#Split(line1, line2)
+  for lnum in range(a:line1, a:line2)
+    let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
+    call map(segcols, 'get(v:val, "segment", "")')
+    call setline(lnum, join(segcols))
+  endfor
+endfunction
 
 " Move{E,W,B}をcountに対応させるためのラッパ
 " @param stay MoveE用。現位置がsegment末尾の場合、
@@ -211,6 +219,131 @@ function! s:AtLineEnd()
   let lastchar = matchstr(line, '.$')
   return curcol == col('$') - strlen(lastchar)
 endfunction
+
+" from vim-textobj-user
+function! jasegment#select_function_wrapper(function_name, previous_mode, count1)
+  let ORIG_POS = getpos('.')
+  " call s:prepare_selection(a:previous_mode) " countがクリアされるので省略
+
+  let _ = function(a:function_name)(a:count1)
+  if _ is 0
+    if a:previous_mode ==# 'v'
+      normal! gv
+    else  " if a:previous_mode ==# 'o'
+      call setpos('.', ORIG_POS)
+    endif
+  else
+    let [motion_type, start_position, end_position] = _
+    execute 'normal!' motion_type
+    call setpos('.', start_position)
+    normal! o
+    call setpos('.', end_position)
+  endif
+endfunction
+
+function! s:pos_lt(pos1, pos2)  " less than
+  return a:pos1[1] < a:pos2[1] || a:pos1[1] == a:pos2[1] && a:pos1[2] < a:pos2[2]
+endfunction
+
+" Visual modeでのcount指定に対応するために一部変更。
+function! jasegment#select_function_wrapperv(function_name, inner)
+  let cnt = v:prevcount
+  if cnt == 0
+    let cnt = 1
+  endif
+  " 何も選択されていない場合、textobj選択
+  let pos = getpos('.')
+  execute 'normal! gvo' . "\<Esc>"
+  let otherpos = getpos('.')
+  execute 'normal! gvo' . "\<Esc>"
+  if pos == otherpos
+    call jasegment#select_function_wrapper(a:function_name, 'v', cnt)
+    return
+  endif
+  " 選択済の場合、E or Bで移動後、"aW"の場合は隣接する連続空白を含める
+  " TODO: iWの場合に、単語間の連続空白をcountに含める
+  if s:pos_lt(pos, otherpos)
+    call jasegment#MoveN(function('jasegment#MoveB'), cnt, 0, 0, 1)
+    if !a:inner
+      call search('[[:space:]　]\+\%' . col('.') . 'c', 'bc', line('.'))
+    endif
+  else
+    call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 0, 0)
+    if !a:inner
+      call search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.'))
+    endif
+  endif
+  let newpos = getpos('.')
+  normal! gv
+  call setpos('.', newpos)
+endfunction
+
+function! jasegment#select_a(count1)
+  let spincluded = 0
+  let line = getline('.')
+  if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
+    " 空白上の場合は、空白開始位置以降を対象に含める
+    if search('[^[:space:]　]\zs[[:space:]　]', 'bc', line('.')) == 0
+      call cursor(0, 1)
+    endif
+    let spincluded = 1
+  else
+    " segment開始位置以降を対象に含める
+    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
+    if empty(segcol)
+      return 0
+    endif
+    call cursor(0, segcol.col)
+  endif
+  let st = getpos('.')
+  call jasegment#MoveN(function('jasegment#MoveE'), a:count1, 0, 1, 0)
+  " 空白上でなかった場合、segment終了位置直後の連続する空白を対象に含める
+  if !spincluded
+    if search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.')) == 0
+      " segment終了位置直後に空白が無い場合、開始位置直前に空白があれば含める
+      let ed = getpos('.')
+      call setpos('.', st)
+      call search('[[:space:]　]\+\%' . segcol.col . 'c.', 'bc', line('.'))
+      let st = getpos('.')
+      call setpos('.', ed)
+    endif
+  endif
+  let ed = getpos('.')
+  return ['v', st, ed]
+endfunction
+
+function! jasegment#select_i(count1)
+  let cnt = a:count1
+  let line = getline('.')
+  if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
+    " 空白上の場合は、空白開始位置以降を対象に含める
+    if search('[^[:space:]　]\zs[[:space:]　]', 'bc', line('.')) == 0
+      call cursor(0, 1)
+    endif
+    let cnt -= 1
+    if cnt <= 0
+      " 連続する空白のみを対象にする
+      let st = getpos('.')
+      if search('[[:space:]　]\+\ze[^[:space:]　]', 'ce', line('.')) == 0
+	call cursor(0, col('$'))
+      endif
+      let ed = getpos('.')
+      return ['v', st, ed]
+    endif
+  else
+    " segment開始位置以降を対象に含める
+    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
+    if empty(segcol)
+      return 0
+    endif
+    call cursor(0, segcol.col)
+  endif
+  let st = getpos('.')
+  call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 1, 1)
+  let ed = getpos('.')
+  return ['v', st, ed]
+endfunction
+
 
 " 直前に分割したsegmentをキャッシュ
 let s:cache = {}
