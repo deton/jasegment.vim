@@ -5,41 +5,21 @@
 文節単位移動プラグイン			*jasegment*
 
 1. 概要					|jasegment-overview|
-2. 準備					|jasegment-setup|
-3. オプション				|jasegment-option|
-4. コマンド				|jasegment-command|
-5. 問題点				|jasegment-problem|
+2. オプション				|jasegment-option|
+3. コマンド				|jasegment-command|
+4. 問題点				|jasegment-problem|
 
 ==============================================================================
 1. 概要						*jasegment-overview*
 
-jasegment.vimは、E,W,Bでの移動を文節単位にするスクリプトです。
+jasegment.vimは、E,W,BでのWORD移動を日本語の文節単位にするスクリプトです。
 
 * 通常移動の他に、Visual modeや、dW/c2E/yB等のOperator-pending modeも対応。
 * 文節単位のtext-objects選択用`<Plug>`を提供。aW/iWにmapして使用可能。
-* カーソル行の文節開始位置に下線を表示(カーソル行の初回文節区切りのタイミング)
+* カーソル行の文節開始位置に下線を表示するオプションあり。
 
 ==============================================================================
-2. 準備						*jasegment-setup*
-
-~/.vimrcに以下のmapを追加してください。
-
-nmap <silent> E <Plug>JaSegmentMoveNE
-nmap <silent> W <Plug>JaSegmentMoveNW
-nmap <silent> B <Plug>JaSegmentMoveNB
-omap <silent> E <Plug>JaSegmentMoveOE
-omap <silent> W <Plug>JaSegmentMoveOW
-omap <silent> B <Plug>JaSegmentMoveOB
-xmap <silent> E <Plug>JaSegmentMoveVE
-xmap <silent> W <Plug>JaSegmentMoveVW
-xmap <silent> B <Plug>JaSegmentMoveVB
-omap <silent> aW <Plug>JaSegmentTextObjA
-omap <silent> iW <Plug>JaSegmentTextObjI
-xmap <silent> aW <Plug>JaSegmentTextObjVA
-xmap <silent> iW <Plug>JaSegmentTextObjVI
-
-==============================================================================
-3. オプション					*jasegment-option*
+2. オプション					*jasegment-option*
 
 'g:jasegment#model'				*'g:jasegment#model'*
   文節を区切るために使うTinySegmenter用モデル名
@@ -48,12 +28,20 @@ xmap <silent> iW <Plug>JaSegmentTextObjVI
   設定例(TinySegmenter付属の単語区切りモデルを使う場合):
     let g:jasegment#model = 'rwcp'
 
+'g:jasegment#highlight'				*'g:jasegment#highlight'*
+  カーソル行の文節開始位置に下線を表示する場合は1に設定します。
+  カーソル行でのE,W,B,aW,iW初回使用時の文節区切りのタイミングで更新するので、
+  行編集後、再度文節区切りをするまで、ずれた位置に表示されます。
+  省略値: 0
+  設定例:
+    let g:jasegment#highlight = 1
+
 'loaded_jasegment'				*'loaded_jasegment'*
   このプラグインを読み込みたくない場合に次のように設定します。
     let g:loaded_jasegment = 1
 
 ==============================================================================
-4. コマンド					*jasegment-command*
+3. コマンド					*jasegment-command*
 
 :[range]JaSegmentSplit				*:JaSegmentSplit* 
   指定行を、文節で分かち書きした内容に置換する。
@@ -61,13 +49,14 @@ xmap <silent> iW <Plug>JaSegmentTextObjVI
   主に文節区切り再学習用データ作成用)
 
 ==============================================================================
-5. 問題点					*jasegment-problem*
+4. 問題点					*jasegment-problem*
 
 文節区切りが適切でない場合があります。
 普段使う文章で文節区切りを学習し直せば改善される可能性はあります。
+(CaboChaやKNPやJ.DepPで文節区切りして、TinySegmenterMaker)
 
 カーソル行でE,W,Bが使用されると、その行全体に対して文節区切りを行うため、
-1行が非常に長いと時間がかかります。
+1行が非常に長いと少し時間がかかります。
 
 ==============================================================================
  vim:set ft=help:
