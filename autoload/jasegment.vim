@@ -22,6 +22,22 @@ function! jasegment#Split(line1, line2)
   endfor
 endfunction
 
+function! jasegment#EnableMapping()
+  nmap <silent> E <Plug>JaSegmentMoveNE
+  nmap <silent> W <Plug>JaSegmentMoveNW
+  nmap <silent> B <Plug>JaSegmentMoveNB
+  omap <silent> E <Plug>JaSegmentMoveOE
+  omap <silent> W <Plug>JaSegmentMoveOW
+  omap <silent> B <Plug>JaSegmentMoveOB
+  xmap <silent> E <Plug>JaSegmentMoveVE
+  xmap <silent> W <Plug>JaSegmentMoveVW
+  xmap <silent> B <Plug>JaSegmentMoveVB
+  omap <silent> aW <Plug>JaSegmentTextObjA
+  omap <silent> iW <Plug>JaSegmentTextObjI
+  xmap <silent> aW <Plug>JaSegmentTextObjVA
+  xmap <silent> iW <Plug>JaSegmentTextObjVI
+endfunction
+
 " Move{E,W,B}をcountに対応させるためのラッパ
 " @param stay MoveE用。現位置がsegment末尾の場合、
 "  次segmentに移動したくない場合に1を指定。textobj用。
