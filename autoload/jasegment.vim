@@ -9,6 +9,10 @@ scriptencoding utf-8
 if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
 endif
+" 文節開始位置にunderlineを付けるかどうか
+if !exists('g:jasegment#highlight')
+  let g:jasegment#highlight = 0
+endif
 
 function! jasegment#Split(line1, line2)
   for lnum in range(a:line1, a:line2)
@@ -411,7 +415,9 @@ function! jasegment#SegmentCol(model_name, lnum)
     endwhile
     let i += 1
   endwhile
-  call s:showmark(segcols, a:lnum)
+  if g:jasegment#highlight
+    call s:showmark(segcols, a:lnum)
+  endif
   let s:cache[a:model_name] = {'line': line, 'segcols': segcols}
   return segcols
 endfunction
