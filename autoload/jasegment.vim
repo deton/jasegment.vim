@@ -15,11 +15,24 @@ if !exists('g:jasegment#highlight')
 endif
 
 function! jasegment#Split(line1, line2)
+  let hlsave = g:jasegment#highlight
+  " 分割すると開始位置は必ずずれるので下線表示はオフにする
+  if hlsave && s:hl_id != 0
+    silent! call matchdelete(s:hl_id)
+  endif
+  let g:jasegment#highlight = 0
+
   for lnum in range(a:line1, a:line2)
     let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
-    call map(segcols, 'get(v:val, "segment", "")')
-    call setline(lnum, join(segcols))
+    let segs = map(copy(segcols), 'get(v:val, "segment", "")')
+    call setline(lnum, join(segs))
   endfor
+
+  if hlsave
+    " 最終行のキャッシュが残ってるとW等で移動しても下線表示されないのでクリア
+    let s:cache[g:jasegment#model] = {'line': '', 'segcols': []}
+  endif
+  let g:jasegment#highlight = hlsave
 endfunction
 
 function! jasegment#EnableMapping()
