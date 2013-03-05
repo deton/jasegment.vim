@@ -4,7 +4,7 @@ scriptencoding utf-8
 " plugin/jasegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-05
+" Last Change: 2013-03-06
 "
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
@@ -44,19 +44,21 @@ vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call jasegment#select_function_
 onoremap <silent> <Plug>JaSegmentTextObjI :<C-U>call jasegment#select_function_wrapper('jasegment#select_i', 'o', v:count1)<CR>
 vnoremap <silent> <Plug>JaSegmentTextObjVI <Esc>:call jasegment#select_function_wrapperv('jasegment#select_i', 1)<CR>
 
-nmap <silent> E <Plug>JaSegmentMoveNE
-nmap <silent> W <Plug>JaSegmentMoveNW
-nmap <silent> B <Plug>JaSegmentMoveNB
-omap <silent> E <Plug>JaSegmentMoveOE
-omap <silent> W <Plug>JaSegmentMoveOW
-omap <silent> B <Plug>JaSegmentMoveOB
-xmap <silent> E <Plug>JaSegmentMoveVE
-xmap <silent> W <Plug>JaSegmentMoveVW
-xmap <silent> B <Plug>JaSegmentMoveVB
-omap <silent> aW <Plug>JaSegmentTextObjA
-omap <silent> iW <Plug>JaSegmentTextObjI
-xmap <silent> aW <Plug>JaSegmentTextObjVA
-xmap <silent> iW <Plug>JaSegmentTextObjVI
+if !get(g:, 'jasegment_no_default_key_mappings', 0)
+  nmap <silent> E <Plug>JaSegmentMoveNE
+  nmap <silent> W <Plug>JaSegmentMoveNW
+  nmap <silent> B <Plug>JaSegmentMoveNB
+  omap <silent> E <Plug>JaSegmentMoveOE
+  omap <silent> W <Plug>JaSegmentMoveOW
+  omap <silent> B <Plug>JaSegmentMoveOB
+  xmap <silent> E <Plug>JaSegmentMoveVE
+  xmap <silent> W <Plug>JaSegmentMoveVW
+  xmap <silent> B <Plug>JaSegmentMoveVB
+  omap <silent> aW <Plug>JaSegmentTextObjA
+  omap <silent> iW <Plug>JaSegmentTextObjI
+  xmap <silent> aW <Plug>JaSegmentTextObjVA
+  xmap <silent> iW <Plug>JaSegmentTextObjVI
+endif
 
 hi def link JaSegment Underlined
 " hi def JaSegment term=underline cterm=underline gui=underline
