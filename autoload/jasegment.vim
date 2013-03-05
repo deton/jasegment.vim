@@ -12,6 +12,10 @@ endif
 if !exists('g:jasegment#model_word')
   let g:jasegment#model_word = 'rwcp'
 endif
+" 指定した文字(パターン)の後に強制的に文節区切りを入れる
+if !exists('g:jasegment#splitpat')
+  let g:jasegment#splitpat = '[^[:space:]　][?!、。]\+\zs'
+endif
 
 function! jasegment#Split(line1, line2)
   let hlsave = g:jasegment#highlight
@@ -411,7 +415,7 @@ function! jasegment#SegmentCol(model_name, lnum)
       if spseg =~ '[^[:graph:]]'
 	let js = tinysegmenter#{a:model_name}#segment(spseg)
 	" TinySegmenterで"。"の後で切ってくれないことがあるので自分で分割
-	call map(js, 'split(v:val, ''[^[:space:]　][?!、。]\+\zs'')')
+	call map(js, 'split(v:val, ''' . g:jasegment#splitpat . ''')')
 	let segs = []
 	for ar in js
 	  call extend(segs, ar)
