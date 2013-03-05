@@ -4,17 +4,13 @@ scriptencoding utf-8
 " autoload/jasegment.vim - TinySegmenterを使って、日本語を文節や単語で分割
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-04
+" Last Change: 2013-03-05
 
 if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
 endif
 if !exists('g:jasegment#model_word')
   let g:jasegment#model_word = 'rwcp'
-endif
-" 文節開始位置にunderlineを付けるかどうか
-if !exists('g:jasegment#highlight')
-  let g:jasegment#highlight = 0
 endif
 
 function! jasegment#Split(line1, line2)
@@ -462,6 +458,10 @@ function! s:showmark(segcols, lnum)
     call add(marks, '\%' . a:lnum . 'l\%' . col . 'c')
   endfor
   let s:hl_id = matchadd('JaSegment', join(marks, '\|'))
+endfunction
+
+function! jasegment#OnInsertLeave()
+  call jasegment#SegmentCol(g:jasegment#model, line('.'))
 endfunction
 
 " col位置のsegmentを取得する

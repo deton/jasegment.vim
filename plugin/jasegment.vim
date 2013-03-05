@@ -4,7 +4,7 @@ scriptencoding utf-8
 " plugin/jasegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-04
+" Last Change: 2013-03-05
 "
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
@@ -48,3 +48,15 @@ call jasegment#EnableMapping()
 
 hi def link JaSegment Underlined
 " hi def JaSegment term=underline cterm=underline gui=underline
+
+" 文節開始位置にunderlineを付けるかどうか
+if !exists('g:jasegment#highlight')
+  let g:jasegment#highlight = 0
+endif
+
+if g:jasegment#highlight >= 2
+  augroup JaSegment
+  autocmd!
+  autocmd InsertLeave * call jasegment#OnInsertLeave()
+  augroup END
+endif
