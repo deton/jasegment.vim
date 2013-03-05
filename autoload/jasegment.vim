@@ -67,7 +67,7 @@ function! jasegment#MoveN(func, cnt, omode, stay, countspace)
     if cnt == 1
       let islast = 1
     endif
-    let endcol = a:func(stay, islast, a:omode)
+    let endcol = function(a:func)(stay, islast, a:omode)
     let stay = 0
     let cnt -= 1
     if a:countspace && endcol > 0 && cnt > 0
@@ -91,7 +91,7 @@ function! jasegment#MoveV(func)
   endif
   while cnt > 0
     " islastはOperator-pending modeのみ
-    call a:func(0, 0, 0)
+    call function(a:func)(0, 0, 0)
     let cnt -= 1
   endwhile
   let pos = getpos('.')
@@ -299,12 +299,12 @@ function! jasegment#select_function_wrapperv(function_name, inner)
   " 選択済の場合、E or Bで移動後、"aW"の場合は隣接する連続空白を含める
   " TODO: iWの場合に、単語間の連続空白をcountに含める
   if s:pos_lt(pos, otherpos)
-    call jasegment#MoveN(function('jasegment#MoveB'), cnt, 0, 0, 1)
+    call jasegment#MoveN('jasegment#MoveB', cnt, 0, 0, 1)
     if !a:inner
       call search('[[:space:]　]\+\%' . col('.') . 'c', 'bc', line('.'))
     endif
   else
-    call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 0, 0)
+    call jasegment#MoveN('jasegment#MoveE', cnt, 0, 0, 0)
     if !a:inner
       call search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.'))
     endif
@@ -332,7 +332,7 @@ function! jasegment#select_a(count1)
     call cursor(0, segcol.col)
   endif
   let st = getpos('.')
-  call jasegment#MoveN(function('jasegment#MoveE'), a:count1, 0, 1, 0)
+  call jasegment#MoveN('jasegment#MoveE', a:count1, 0, 1, 0)
   " 空白上でなかった場合、segment終了位置直後の連続する空白を対象に含める
   if !spincluded
     if search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.')) == 0
@@ -375,7 +375,7 @@ function! jasegment#select_i(count1)
     call cursor(0, segcol.col)
   endif
   let st = getpos('.')
-  call jasegment#MoveN(function('jasegment#MoveE'), cnt, 0, 1, 1)
+  call jasegment#MoveN('jasegment#MoveE', cnt, 0, 1, 1)
   let ed = getpos('.')
   return ['v', st, ed]
 endfunction

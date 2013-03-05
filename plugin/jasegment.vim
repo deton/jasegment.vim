@@ -26,18 +26,18 @@ if !exists(":JaSegmentSplit")
   command! -range JaSegmentSplit call jasegment#Split(<line1>, <line2>)
 endif
 
-nnoremap <silent> <Plug>JaSegmentMoveNE :<C-U>call jasegment#MoveN(function('jasegment#MoveE'), v:count1, mode(1) == 'no', 0, 0)<CR>
-nnoremap <silent> <Plug>JaSegmentMoveNW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, mode(1) == 'no', 0, 0)<CR>
-nnoremap <silent> <Plug>JaSegmentMoveNB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0, 0)<CR>
-onoremap <silent> <Plug>JaSegmentMoveOE :<C-U>call jasegment#MoveO(function('jasegment#MoveE'), v:count1)<CR>
-onoremap <silent> <Plug>JaSegmentMoveOW :<C-U>call jasegment#MoveN(function('jasegment#MoveW'), v:count1, 1, 0, 0)<CR>
-onoremap <silent> <Plug>JaSegmentMoveOB :<C-U>call jasegment#MoveN(function('jasegment#MoveB'), v:count1, 0, 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNE :<C-U>call jasegment#MoveN('jasegment#MoveE', v:count1, mode(1) == 'no', 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNW :<C-U>call jasegment#MoveN('jasegment#MoveW', v:count1, mode(1) == 'no', 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNB :<C-U>call jasegment#MoveN('jasegment#MoveB', v:count1, 0, 0, 0)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOE :<C-U>call jasegment#MoveO('jasegment#MoveE', v:count1)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOW :<C-U>call jasegment#MoveN('jasegment#MoveW', v:count1, 1, 0, 0)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOB :<C-U>call jasegment#MoveN('jasegment#MoveB', v:count1, 0, 0, 0)<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
-vnoremap <silent> <Plug>JaSegmentMoveVE <Esc>:call jasegment#MoveV(function('jasegment#MoveE'))<CR>
-vnoremap <silent> <Plug>JaSegmentMoveVW <Esc>:call jasegment#MoveV(function('jasegment#MoveW'))<CR>
-vnoremap <silent> <Plug>JaSegmentMoveVB <Esc>:call jasegment#MoveV(function('jasegment#MoveB'))<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVE <Esc>:call jasegment#MoveV('jasegment#MoveE')<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVW <Esc>:call jasegment#MoveV('jasegment#MoveW')<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVB <Esc>:call jasegment#MoveV('jasegment#MoveB')<CR>
 
 onoremap <silent> <Plug>JaSegmentTextObjA :<C-U>call jasegment#select_function_wrapper('jasegment#select_a', 'o', v:count1)<CR>
 vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call jasegment#select_function_wrapperv('jasegment#select_a', 0)<CR>
