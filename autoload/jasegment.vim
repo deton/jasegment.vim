@@ -325,7 +325,7 @@ function! jasegment#select_a(count1)
     let spincluded = 1
   else
     " segment開始位置以降を対象に含める
-    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
+    let segcol = jasegment#csegment(g:jasegment#model, line('.'), col('.'))
     if empty(segcol)
       return 0
     endif
@@ -368,7 +368,7 @@ function! jasegment#select_i(count1)
     endif
   else
     " segment開始位置以降を対象に含める
-    let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
+    let segcol = jasegment#csegment(g:jasegment#model, line('.'), col('.'))
     if empty(segcol)
       return 0
     endif
@@ -469,24 +469,33 @@ function! jasegment#OnInsertLeave()
 endfunction
 
 " col位置のsegmentを取得する
-function! jasegment#GetCurrentSegment(model_name, lnum, col)
+function! jasegment#csegment(model_name, lnum, col)
   let segcols = jasegment#SegmentCol(a:model_name, a:lnum)
-  if empty(segcols)
+  let idx = jasegment#index(segcols, a:col)
+  if idx == -1
     return {}
   endif
+  return segcols[idx]
+endfunction
+
+" col位置のsegmentのindex番号を取得する
+function! jasegment#index(segcols, col)
+  if empty(a:segcols)
+    return -1
+   endif
   let i = 0
-  while i < len(segcols)
-    if segcols[i].col > a:col
-      return segcols[i - 1]
+  while i < len(a:segcols)
+    if a:segcols[i].col > a:col
+      return i - 1
     endif
     let i += 1
   endwhile
-  return segcols[i - 1]
+  return i - 1
 endfunction
 
 " カーソル位置の文節文字列を取得する
 function! jasegment#cWORD()
-  let segcol = jasegment#GetCurrentSegment(g:jasegment#model, line('.'), col('.'))
+  let segcol = jasegment#csegment(g:jasegment#model, line('.'), col('.'))
   if empty(segcol)
     return ''
   endif
@@ -495,7 +504,7 @@ endfunction
 
 " カーソル位置の単語文字列を取得する
 function! jasegment#cword()
-  let segcol = jasegment#GetCurrentSegment(g:jasegment#model_word, line('.'), col('.'))
+  let segcol = jasegment#csegment(g:jasegment#model_word, line('.'), col('.'))
   if empty(segcol)
     return ''
   endif
