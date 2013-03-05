@@ -44,7 +44,19 @@ vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call jasegment#select_function_
 onoremap <silent> <Plug>JaSegmentTextObjI :<C-U>call jasegment#select_function_wrapper('jasegment#select_i', 'o', v:count1)<CR>
 vnoremap <silent> <Plug>JaSegmentTextObjVI <Esc>:call jasegment#select_function_wrapperv('jasegment#select_i', 1)<CR>
 
-call jasegment#EnableMapping()
+nmap <silent> E <Plug>JaSegmentMoveNE
+nmap <silent> W <Plug>JaSegmentMoveNW
+nmap <silent> B <Plug>JaSegmentMoveNB
+omap <silent> E <Plug>JaSegmentMoveOE
+omap <silent> W <Plug>JaSegmentMoveOW
+omap <silent> B <Plug>JaSegmentMoveOB
+xmap <silent> E <Plug>JaSegmentMoveVE
+xmap <silent> W <Plug>JaSegmentMoveVW
+xmap <silent> B <Plug>JaSegmentMoveVB
+omap <silent> aW <Plug>JaSegmentTextObjA
+omap <silent> iW <Plug>JaSegmentTextObjI
+xmap <silent> aW <Plug>JaSegmentTextObjVA
+xmap <silent> iW <Plug>JaSegmentTextObjVI
 
 hi def link JaSegment Underlined
 " hi def JaSegment term=underline cterm=underline gui=underline
