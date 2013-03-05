@@ -16,6 +16,10 @@ endif
 if !exists('g:jasegment#splitpat')
   let g:jasegment#splitpat = '[^[:space:]　][?!、。]\+\zs'
 endif
+" :JaSegmentSplitで分かち書きする際の区切り文字列
+if !exists('g:jasegment#splitsep')
+  let g:jasegment#splitsep = ' '
+endif
 
 function! jasegment#Split(line1, line2)
   let hlsave = g:jasegment#highlight
@@ -28,7 +32,7 @@ function! jasegment#Split(line1, line2)
   for lnum in range(a:line1, a:line2)
     let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
     let segs = map(copy(segcols), 'get(v:val, "segment", "")')
-    call setline(lnum, join(segs))
+    call setline(lnum, join(segs, g:jasegment#splitsep))
   endfor
 
   if hlsave
