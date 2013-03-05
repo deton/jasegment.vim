@@ -14,8 +14,10 @@
 
 jasegment.vimは、E,W,BでのWORD移動を日本語の文節単位にするスクリプトです。
 
+E,W,B,aW,iWを置き換えます。
+
 * 通常移動の他に、Visual modeや、dW/c2E/yB等のOperator-pending modeも対応。
-* 文節単位のtext-objects選択用`<Plug>`を提供。aW/iWにmapして使用可能。
+* text-objectsでWORD選択を行うaW/iWも文節で選択するようにします。
 * カーソル行の文節開始位置に下線を表示するオプションあり。
 
 ==============================================================================
@@ -29,12 +31,14 @@ jasegment.vimは、E,W,BでのWORD移動を日本語の文節単位にするス�
     let g:jasegment#model = 'rwcp'
 
 'g:jasegment#highlight'				*'g:jasegment#highlight'*
-  カーソル行の文節開始位置に下線を表示する場合は1に設定します。
+  カーソル行の文節開始位置に下線を表示する場合は1以上に設定します。
   カーソル行でのE,W,B,aW,iW初回使用時の文節区切りのタイミングで更新するので、
   行編集後、再度文節区切りをするまで、ずれた位置に表示されます。
+  2以上に設定すると、|InsertLeave|時にも更新します。
+  この場合でも、xやd等で変更すると、表示位置がずれます。
   省略値: 0
   設定例:
-    let g:jasegment#highlight = 1
+    let g:jasegment#highlight = 2
 
 'loaded_jasegment'				*'loaded_jasegment'*
   このプラグインを読み込みたくない場合に次のように設定します。

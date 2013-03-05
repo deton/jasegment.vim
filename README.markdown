@@ -7,8 +7,8 @@ jasegment.vim - E,W,BでのWORD移動を日本語の文節単位にするスク�
 jasegment.vimは、E,W,BでのWORD移動を日本語の文節単位にするスクリプトです。
 
 * 通常移動の他に、Visual modeや、dW/c2E/yB等のOperator-pending modeも対応。
-* 文節単位のtext-objects選択用`<Plug>`を提供。aW/iWにmapして使用可能。
-* カーソル行の文節開始位置に下線を表示(カーソル行の初回文節区切りのタイミング)
+* text-objectsでWORD選択を行うaW/iWも文節で選択するようにします。
+* カーソル行の文節開始位置に下線を表示するオプションあり。
 
 * 文節区切りは、
   [TinySegmenter](http://chasen.org/~taku/software/TinySegmenter/)
@@ -19,10 +19,6 @@ jasegment.vimは、E,W,BでのWORD移動を日本語の文節単位にするス�
   を使って、
   [KNBコーパス](http://nlp.ist.i.kyoto-u.ac.jp/kuntt/#ga739fe2)
   から、文節区切りを学習させたもの。
-
-使い方
-======
-  doc/jasegment.txt を参照してください。
 
 その他日本語編集向け設定例
 ==========================
