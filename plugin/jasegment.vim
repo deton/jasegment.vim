@@ -26,8 +26,8 @@ if !exists(":JaSegmentSplit")
   command! -range JaSegmentSplit call jasegment#Split(<line1>, <line2>)
 endif
 
-nnoremap <silent> <Plug>JaSegmentMoveNE :<C-U>call jasegment#MoveN('jasegment#MoveE', v:count1, mode(1) == 'no', 0, 0)<CR>
-nnoremap <silent> <Plug>JaSegmentMoveNW :<C-U>call jasegment#MoveN('jasegment#MoveW', v:count1, mode(1) == 'no', 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNE :<C-U>call jasegment#MoveN('jasegment#MoveE', v:count1, 0, 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNW :<C-U>call jasegment#MoveN('jasegment#MoveW', v:count1, 0, 0, 0)<CR>
 nnoremap <silent> <Plug>JaSegmentMoveNB :<C-U>call jasegment#MoveN('jasegment#MoveB', v:count1, 0, 0, 0)<CR>
 onoremap <silent> <Plug>JaSegmentMoveOE :<C-U>call jasegment#MoveO('jasegment#MoveE', v:count1)<CR>
 onoremap <silent> <Plug>JaSegmentMoveOW :<C-U>call jasegment#MoveN('jasegment#MoveW', v:count1, 1, 0, 0)<CR>

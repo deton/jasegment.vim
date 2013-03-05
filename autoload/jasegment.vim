@@ -99,7 +99,7 @@ function! jasegment#MoveV(func)
   call cursor(pos[1], pos[2])
 endfunction
 
-function! jasegment#MoveE(stay, dummy, omode)
+function! jasegment#MoveE(stay, dummy, dummy2)
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
@@ -108,7 +108,7 @@ function! jasegment#MoveE(stay, dummy, omode)
       return 0
     endif
     call cursor(lnum + 1, 1)
-    return jasegment#MoveE(1, 0, a:omode)
+    return jasegment#MoveE(1, 0, 0)
   endif
   let curcol = col('.')
   let i = 0
@@ -140,7 +140,7 @@ function! jasegment#MoveE(stay, dummy, omode)
     return 0
   endif
   call cursor(lnum + 1, 1)
-  return jasegment#MoveE(1, 0, a:omode)
+  return jasegment#MoveE(1, 0, 0)
 endfunction
 
 " segment末尾の空白を含めた、segment終了位置を返す。
@@ -168,7 +168,7 @@ function! jasegment#MoveW(dummy, islast, omode)
     call setpos('.', s:origpos)
     normal! v
     call setpos('.', curpos)
-    return jasegment#MoveE(1, 0, a:omode)
+    return jasegment#MoveE(1, 0, 0)
   endif
   let lnum = line('.')
   let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
