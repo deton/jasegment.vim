@@ -6,8 +6,9 @@
 
 1. 概要					|jasegment-overview|
 2. オプション				|jasegment-option|
-3. コマンド				|jasegment-command|
-4. 問題点				|jasegment-problem|
+3. 関数					|jasegment-function|
+4. コマンド				|jasegment-command|
+5. 問題点				|jasegment-problem|
 
 ==============================================================================
 1. 概要						*jasegment-overview*
@@ -46,7 +47,18 @@ E,W,B,aW,iWを置き換えます。
     let g:loaded_jasegment = 1
 
 ==============================================================================
-3. コマンド					*jasegment-command*
+3. 関数						*jasegment-function*
+
+jasegment#cword()				*jasegment#cword()*
+  カーソル位置のword(単語)文字列を取得します。
+  g:jasegment#model_word(デフォルトは'rwcp')を使ってsegmentを区切ります。
+
+jasegment#cWORD()				*jasegment#cWORD()*
+  カーソル位置のWORD(文節)文字列を取得します。
+  g:jasegment#model(デフォルトは'knbc_bunsetu')を使ってsegmentを区切ります。
+
+==============================================================================
+4. コマンド					*jasegment-command*
 
 :[range]JaSegmentSplit				*:JaSegmentSplit* 
   指定行を、文節で分かち書きした内容に置換する。
@@ -54,7 +66,7 @@ E,W,B,aW,iWを置き換えます。
   主に文節区切り再学習用データ作成用)
 
 ==============================================================================
-4. 問題点					*jasegment-problem*
+5. 問題点					*jasegment-problem*
 
 * 文節区切りが適切でない場合があります。
 
