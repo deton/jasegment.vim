@@ -94,10 +94,13 @@ lmapオフの状態(iminsert=0)だと、
     " Jで行をつなげた時に日本語の場合はスペースを入れない
     set formatoptions+=Mm
     " 。、に移動(f<C-K>._ を打つのは少し長いので)。cf<C-J>等の使い方も可。
-    noremap <silent> f<C-J> f。
-    noremap <silent> f<C-U> f、
-    noremap <silent> F<C-J> F。
-    noremap <silent> F<C-U> F、
+    function! s:MapFT(key, char)
+      for cmd in ['f', 'F', 't', 'T']
+        execute 'noremap <silent> ' . cmd . a:key . ' ' . cmd . a:char
+      endfor
+    endfunction
+    call <SID>MapFT('<C-J>', '。')
+    call <SID>MapFT('<C-U>', '、')
     " 前/次の「。、」の後に改行を挿入する
     nnoremap <silent> f<C-H> f。a<CR><Esc>
     nnoremap <silent> f<C-L> f、a<CR><Esc>
@@ -113,9 +116,9 @@ lmapオフの状態(iminsert=0)だと、
     function! s:AddNewline(ch)
       if search(a:ch . '\zs.', 'b', line('.')) > 0
         let pos = col("'^")
-	let len = col('.') - 1
-	execute "normal! i\<CR>\<Esc>"
-	call cursor(0, pos - len)
+        let len = col('.') - 1
+        execute "normal! i\<CR>\<Esc>"
+        call cursor(0, pos - len)
       endif
     endfunction
 
