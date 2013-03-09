@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Jasegment.vim by deton</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Jasegment.vim</h1>
+        <p>plugin to change WORD motion(E,W,B) for Japanese text using TinySegmenter</p>
+        <p class="view"><a href="https://github.com/deton/jasegment.vim">View the Project on GitHub <small>deton/jasegment.vim</small></a></p>
+        <ul>
+          <li><a href="https://github.com/deton/jasegment.vim/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/deton/jasegment.vim/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/deton/jasegment.vim">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>jasegment.vim - W,E,BでのWORD移動を日本語の文節単位にするスクリプト</h1>
+
+<h1>概要</h1>
+
+<p>jasegment.vimは、
+日本語文字列上でのWORD移動(W,E,B)を文節単位にするスクリプトです。
+TinySegmenterを使って文節を区切っています。</p>
+
+<p>Vimでは、日本語に関しては、word移動(w,e,b)とWORD移動(W,E,B)で違いがないため、
+W,E,Bの存在意味がなく、使い道がありませんでした。
+そこで、W,E,BでのWORD移動をword移動よりも大きくし、
+かつ文の構造に基づいた文節単位で移動するjasegment.vimを作りました
+(といっても、文節区切りはTinySegmenterを使っているだけです)。</p>
+
+<p>以下の特徴があります。</p>
+
+<ul>
+<li>ひらがなが連続する中から、ひらがなで始まる文節を認識可能。
+(文字種だけを見て、
+漢字の後の連続するひらがなをWORDとみなす方法では不可能)</li>
+<li>英字とその後に連続するひらがなを、WORDとして扱う。</li>
+</ul><p>機能:</p>
+
+<ul>
+<li>通常移動(countも対応)の他に、Visual modeや、
+dW/c2E/yB等のOperator-pending modeも対応。</li>
+<li>text-objectsでWORD選択を行うaW/iWも、文節で選択するようにします。</li>
+<li>カーソル行の文節開始位置に下線を表示するオプションあり。</li>
+</ul><p><img src="http://deton.github.com/jasegment.vim/jasegment.png" alt="下線表示スクリーンショット"></p>
+
+<p>文節区切りに関しては、以下を使っています。</p>
+
+<ul>
+<li>文節区切りは、
+<a href="http://chasen.org/%7Etaku/software/TinySegmenter/">TinySegmenter</a>
+をVimスクリプトに移植したものを使用。</li>
+<li>文節区切りの学習データは、
+<a href="http://shogo82148.github.com/blog/2012/11/23/tinysegmentermaker/">TinySegmenterMaker</a>
+を使って、
+<a href="http://nlp.ist.i.kyoto-u.ac.jp/kuntt/#ga739fe2">KNBコーパス</a>
+から、文節区切りを学習させたもの。</li>
+</ul><h2>区切り例</h2>
+
+<p>TinySegmenterの文節区切り(knbc_bunsetuモデル):</p>
+
+<pre><code>Vimは | 最も | たくさんの | コンピュータ/OSで | 利用できる | テキストエディタです。
+</code></pre>
+
+<p>TinySegmenterの単語区切り(rwcpモデル):</p>
+
+<pre><code>Vim | は | 最も | たく | さん | の | コンピュータ | / | OS | で | 利用 | できる | テキストエディタ | です | 。
+</code></pre>
+
+<p>Vimのword:</p>
+
+<pre><code>Vim | は | 最 | もたくさんの | コンピュータ | / | OS | で | 利用 | できる | テキストエディタ | です | 。
+</code></pre>
+
+<p>VimのWORD:</p>
+
+<pre><code>Vim | は | 最 | もたくさんの | コンピュータ | / OS | で | 利用 | できる | テキストエディタ | です | 。
+</code></pre>
+
+<p>matchit2.vim:</p>
+
+<pre><code>Vim | は | 最もたくさんの | コンピュータ | / | OS | で | 利用できる | テキストエディタ | です。
+</code></pre>
+
+<p>MyMoveWord.vim("。"までまるごと1つ):</p>
+
+<pre><code>Vimは最もたくさんのコンピュータ/OSで利用できるテキストエディタです。
+</code></pre>
+
+<p>motion_ja.vim:</p>
+
+<pre><code>Vim | は最もたくさんのコンピュータ | /OS | で利用できるテキストエディタです。
+</code></pre>
+
+<p>jvim3のWORD:</p>
+
+<pre><code>Vim | は最もたくさんのコンピュータ | /OS | で利用できるテキストエディタです | 。
+</code></pre>
+
+<p>EmacsのM-f(forward-word):</p>
+
+<pre><code>Vim | は | 最もたくさんの | コンピュータ | /OS | で | 利用できる | テキストエディタです | 。
+</code></pre>
+
+<h1>関連</h1>
+
+<ul>
+<li>
+<p><a href="http://www.fenix.ne.jp/%7EG-HAL/soft/nosettle/#vim">matchit2.vim</a></p>
+
+<p>「漢字とその後の連続するひらがな」をひとまとまりとして移動。</p>
+</li>
+<li>
+<p><a href="https://sites.google.com/site/fudist/Home/mylib#TOC-w-b-W-E-B-">MyMoveWord.vim</a></p>
+
+<p>指定した日本語セパレータ(。、など)でW,B,Eのカーソル移動を一旦停止。</p>
+</li>
+<li>
+<p><a href="https://github.com/deton/motion_ja.vim">motion_ja.vim</a></p>
+
+<p>E,W,Bでの移動量を、e,w,bよりも大きくするためのスクリプト。
+jvim3と同様に「。、」や英数字との境目まで移動。</p>
+</li>
+</ul><h1>制限事項</h1>
+
+<ul>
+<li>
+<p>文節区切りが適切でない場合があります。</p>
+
+<p>例えば、現状同梱している文節区切りデータでは、
+「AもしくはB」という文字列があると、「も」の後で切られてしまいます。</p>
+
+<p>普段使う文章で文節区切りを学習し直せば改善される可能性はあります。
+(CaboChaやKNPやJ.DepPで文節区切りして、TinySegmenterMakerで学習)</p>
+</li>
+<li><p>(ひらがなが連続する場合、文節区切りがぱっと見でわからないことがあるので、
+文節開始位置に下線を表示するオプションを付けましたが、
+ぱっと見での区切りのわかりやすさを考えると、
+漢字の連続+ひらがなの連続をWORDとみなす方が使いやすいのかも)</p></li>
+</ul>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/deton">deton</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
