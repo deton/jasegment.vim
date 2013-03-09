@@ -492,13 +492,6 @@ endfunction
 
 " カーソル位置の単語文字列を取得する
 function! jasegment#cword()
-  let line = getline('.')
-  " 英字上の場合はexpand('<cword>')を返す。
-  " 'rwcp'モデルの場合、日本語文字列中に数字文字列があると1文字ずつになるので。
-  " (例: テスト20130309.csvというファイル名とか。)
-  if line == '' || match(line, '\%' . col('.') . 'c[[:print:]]') != -1
-    return expand('<cword>')
-  endif
   let segcol = jasegment#csegment(g:jasegment#model_word, line('.'), col('.'))
   if empty(segcol)
     return ''
