@@ -29,7 +29,6 @@ W,E,Bの存在意味がなく、使い道がありませんでした。
 * 文節区切りは、
   [TinySegmenter](http://chasen.org/~taku/software/TinySegmenter/)
   をVimスクリプトに移植したものを使用。
-
 * 文節区切りの学習データは、
   [TinySegmenterMaker](http://shogo82148.github.com/blog/2012/11/23/tinysegmentermaker/)
   を使って、
@@ -79,17 +78,11 @@ EmacsのM-f(forward-word):
 ==========================
 
 f,t,rで1文字だけ「。、」などの日本語文字を入力するのは、
-digraphs機能を使うのが楽だと思います。
+digraphs機能を使うのが楽だと思います(例:`<C-K>wo`で「を」)。
 Vimデフォルトのdigraphsにはひらがな・カタカナ・一部記号が含まれています。
 
 ただ、「。」を入力するために`<C-K>._`と打つ必要があり、
 よく使う場合は少し長いので、`f<C-J>`等にmapしておく設定例です。
-
-(なお、digraphs以外の方法として、kana keymapをsetしていれば、
-f,t,rの後にそのままkana keymapに従って日本語文字入力可能ですが、
-lmapオフの状態(iminsert=0)だと、
-一度Insert modeに入ってlmapオンにする必要があるため、
-少し使いにくい面があります)
 
     " Jで行をつなげた時に日本語の場合はスペースを入れない
     set formatoptions+=Mm
@@ -122,18 +115,50 @@ lmapオフの状態(iminsert=0)だと、
       endif
     endfunction
 
-参考: tcodeやtutcodeを使っている場合、
-漢字に対応する2ストロークを:digraphsで登録しておくと便利です。
-(なお、tutcodeの3ストローク以上の文字を入力したい場合は、
+また、「あ」を入力するdigraphはa5ですが、
+もっと打ちやすいaa等にしたい場合の設定例は以下です
+(12354は「あ」のUnicodeコードポイント)。
+
+    digraph aa 12354
+
+このとき、digraph定義で使うUnicodeコードポイントは、
+該当文字にカーソルを合わせて、:asciiもしくはgaで調べられます
+(&encodingがutf-8である必要あり)。
+
+あるいは、日本語文字で書いておいて、Unicodeコードポイントに置換するには、
+
+    digraph aa あ
+
+と書いた行で以下のコマンド(最後の文字をUnicodeコードポイントに置換)を実行
+(&encodingがutf-8である必要あり)。
+
+    :s/\(.\)$/\=char2nr(submatch(1))/
+
+(なお、digraphs以外の方法として、kana keymapをsetしていれば、
+f,t,rの後にそのままkana keymapに従って日本語文字入力可能ですが、
+lmapオフの状態(iminsert=0)だと、
+一度Insert modeに入ってlmapオンにする必要があるため、
+少し使いにくい面があります)
+
+tcodeやtutcode等の漢字直接入力keymapをdigraphに変換
+---------------------------------------------------
+
+tcodeやtutcode等の漢字直接入力keymapを使っている場合、
+漢字に対応する2打鍵を:digraphsで登録しておくと便利です。
+(なお、tutcodeの3打鍵以上の文字を入力したい場合は、
 digraphsに登録できないのでkeymapを使う必要があります)
 
 tcodeやtutcode keymapから、
-digraph定義を生成するためのRubyスクリプト(漢字をUnicodeコードポイント化)。
-入力ファイルの各行が、「rk あ」のような形式であることを想定しています。
+digraph定義を生成するための操作例です。
+(&encodingがutf-8である必要あり)。
 
-    while gets
-        puts 'digraph ' + $_[0..2] + $_[3].ord.to_s
-    end
+    :1,/^loadkeymap/d
+    :g/^"/d                              " コメント行を削除
+    :%s/<Space>/ /g
+    :g/^\S\{3,}/d                        " 3打鍵以上の定義を削除
+    :%s/\(.\)$/\=char2nr(submatch(1))/   " 漢字をUnicodeコードポイントに変換
+    :%j
+    :s/^/digraph /
 
 関連
 ====
