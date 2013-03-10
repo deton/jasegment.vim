@@ -13,11 +13,12 @@
 ==============================================================================
 1. 概要						*jasegment-overview*
 
-jasegment.vimは、E,W,BでのWORD移動を日本語の文節単位にするスクリプトです。
+jasegment.vimは、日本語文章でのWORD移動(W,E,B)を文節単位にするスクリプトです。
 
-E,W,B,aW,iWを置き換えます。
+W,E,B,aW,iWを置き換えます。
 
-* 通常移動の他に、Visual modeや、dW/c2E/yB等のOperator-pending modeも対応。
+* 通常移動(countも対応)の他に、Visual modeや、
+  dW/c2E/yB等のOperator-pending modeも対応。
 * text-objectsでWORD選択を行うaW/iWも文節で選択するようにします。
 * カーソル行の文節開始位置に下線を表示するオプションあり。
 
@@ -33,7 +34,7 @@ E,W,B,aW,iWを置き換えます。
 
 'g:jasegment#highlight'				*'g:jasegment#highlight'*
   カーソル行の文節開始位置に下線を表示する場合は1以上に設定します。
-  カーソル行でのE,W,B,aW,iW初回使用時の文節区切りのタイミングで更新するので、
+  カーソル行でのW,E,B,aW,iW初回使用時の文節区切りのタイミングで更新するので、
   行編集後、再度文節区切りをするまで、ずれた位置に表示されます。
   2以上に設定すると、|InsertLeave|時にも更新します。
   この場合でも、xやd等で変更すると、表示位置がずれます。
@@ -51,7 +52,7 @@ E,W,B,aW,iWを置き換えます。
 
 jasegment#cword()				*jasegment#cword()*
   カーソル位置のword(単語)文字列を取得します。
-  g:jasegment#model_word(デフォルトは'rwcp')を使ってsegmentを区切ります。
+  g:jasegment#model_word(デフォルトは'jeita')を使ってsegmentを区切ります。
 
 jasegment#cWORD()				*jasegment#cWORD()*
   カーソル位置のWORD(文節)文字列を取得します。
@@ -79,7 +80,7 @@ jasegment#cWORD()				*jasegment#cWORD()*
 * カーソル行の文節開始位置の下線表示が、編集後にずれます。
   編集前の位置に表示されたままのため。再度文節区切りをすれば更新されます。
 
-* カーソル行でE,W,Bが使用されると、その行全体に対して文節区切りを行うため、
+* カーソル行でW,E,Bが使用されると、その行全体に対して文節区切りを行うため、
   1行が非常に長いと少し時間がかかります。
 
 ==============================================================================
