@@ -31,7 +31,7 @@ if !exists('g:jasegment#model')
   let g:jasegment#model = 'knbc_bunsetu'
 endif
 if !exists('g:jasegment#model_word')
-  let g:jasegment#model_word = 'rwcp'
+  let g:jasegment#model_word = 'jeita'
 endif
 " 指定した文字(パターン)の後に強制的に文節区切りを入れる
 if !exists('g:jasegment#splitpat')

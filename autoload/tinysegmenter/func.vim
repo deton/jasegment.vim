@@ -1,7 +1,7 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
 scriptencoding utf-8
 
-" tinysegmenter/func.vim
+" autoload/tinysegmenter/func.vim
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
 " Last Change: 2013-02-13
