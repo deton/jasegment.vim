@@ -76,6 +76,23 @@ EmacsのM-f(forward-word):
 
     Vim | は | 最もたくさんの | コンピュータ | /OS | で | 利用できる | テキストエディタです | 。
 
+ファイル一覧
+============
+
+* README.markdown: このファイル
+* plugin/jasegment.vim: map定義等
+* autoload/jasegment.vim: カーソル移動関係の処理
+* autoload/tinysegmenter/func.vim: TinySegmenterの移植。単語や文節区切り処理
+* autoload/tinysegmenter/knbc_bunsetu.vim:
+  KNBコーパスから文節区切りを学習させたモデル
+* autoload/tinysegmenter/jeita.vim: 
+  TinySegmenterMakerに含まれる単語区切りモデル
+* autoload/tinysegmenter/rwcp.vim:
+  TinySegmenterに含まれる単語区切りモデル
+* doc/jasegment.txt: ドキュメント
+* knbc2bunsetu.awk: KNBコーパスから、TinySegmenterMaker用の文節区切り学習用の
+  入力形式に変換するAWKスクリプト
+
 参考: 日本語での移動を改善する同様のスクリプト
 ==============================================
 
