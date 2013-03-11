@@ -40,11 +40,11 @@ W,E,Bの存在意味がなく、使い道がありませんでした。
 区切り例
 --------
 
-TinySegmenterの文節区切り(knbc_bunsetuモデル):
+jasegment.vimの文節区切り(knbc_bunsetuモデル):
 
     Vimは | 最も | たくさんの | コンピュータ/OSで | 利用できる | テキストエディタです。
 
-TinySegmenterの単語区切り(rwcpモデル):
+jasegment.vimの単語区切り(rwcpモデル):
 
     Vim | は | 最も | たく | さん | の | コンピュータ | / | OS | で | 利用 | できる | テキストエディタ | です | 。
 
@@ -90,6 +90,8 @@ EmacsのM-f(forward-word):
 * autoload/tinysegmenter/rwcp.vim:
   TinySegmenterに含まれる単語区切りモデル
 * doc/jasegment.txt: ドキュメント
+* knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
+  TinySegmenterMakerモデルファイル(再学習用)
 * knbc2bunsetu.awk: KNBコーパスから、TinySegmenterMaker用の文節区切り学習用の
   入力形式に変換するAWKスクリプト
 
