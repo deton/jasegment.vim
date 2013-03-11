@@ -7,11 +7,16 @@ jasegment.vim - 日本語文章でのWORD移動(W,E,B)を文節単位にする�
 jasegment.vimは、日本語文章でのWORD移動(W,E,B)を文節単位にするスクリプトです。
 TinySegmenterを使って文節を区切っています。
 
-Vimでは、日本語に関しては、word移動(w,e,b)とWORD移動(W,E,B)で違いがないため、
-W,E,Bの存在意味がなく、使い道がありませんでした。
-そこで、W,E,BでのWORD移動をword移動よりも大きくし、
-かつ文の構造に基づいた文節単位で移動するjasegment.vimを作りました
-(といっても、文節区切りはTinySegmenterを使っているだけです)。
+日本語文章の編集において、VimのWORD移動(W,E,B)は使いづらい機能でした。
+
+* &encodingがeuc-jpやcp932の場合は、
+  word移動(w,e,b)とWORD移動(W,E,B)で違いがないため、
+  W,E,Bの存在意味がなく、使い道がありませんでした。
+
+* &encodingがutf-8の場合は、スペースが無いと改行まで移動するため、
+  日本語文章での行内移動には使えませんでした。
+
+そこで、WORD移動を日本語の文節単位にするjasegment.vimを作りました。
 
 以下の特徴があります。
 * ひらがなが連続する中から、ひらがなで始まる文節を認識可能。
@@ -52,9 +57,13 @@ Vimのword:
 
     Vim | は | 最 | もたくさんの | コンピュータ | / | OS | で | 利用 | できる | テキストエディタ | です | 。
 
-VimのWORD:
+VimのWORD(&encodingがeuc-jpやcp932の場合):
 
     Vim | は | 最 | もたくさんの | コンピュータ | / OS | で | 利用 | できる | テキストエディタ | です | 。
+
+VimのWORD(&encoding=utf-8の場合。改行までまるごと1つ):
+
+    Vimは最もたくさんのコンピュータ/OSで利用できるテキストエディタです。
 
 matchit2.vim:
 
@@ -84,16 +93,20 @@ EmacsのM-f(forward-word):
 * autoload/jasegment.vim: カーソル移動関係の処理
 * autoload/tinysegmenter/func.vim: TinySegmenterの移植。単語や文節区切り処理
 * autoload/tinysegmenter/knbc_bunsetu.vim:
-  KNBコーパスから文節区切りを学習させたモデル
+  KNBコーパスから文節区切りを学習させたデータ
 * autoload/tinysegmenter/jeita.vim: 
-  TinySegmenterMakerに含まれる単語区切りモデル
+  TinySegmenterMakerに含まれる単語区切りデータ
 * autoload/tinysegmenter/rwcp.vim:
-  TinySegmenterに含まれる単語区切りモデル
+  TinySegmenterに含まれる単語区切りデータ
 * doc/jasegment.txt: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
   TinySegmenterMakerモデルファイル(再学習用)
 * knbc2bunsetu.awk: KNBコーパスから、TinySegmenterMaker用の文節区切り学習用の
   入力形式に変換するAWKスクリプト
+
+knbc_bunsetu.modelとknbc2bunsetu.awkは、
+knbc_bunsetu.vimの生成時に使用したファイルなので、
+jasegment.vimの動作時には不要です。
 
 参考: 日本語での移動を改善する同様のスクリプト
 ==============================================
@@ -109,7 +122,8 @@ EmacsのM-f(forward-word):
 * [motion_ja.vim](https://github.com/deton/motion_ja.vim)
 
     E,W,Bでの移動量を、e,w,bよりも大きくするためのスクリプト。
-    jvim3と同様に「。、」や英数字との境目まで移動。
+    jvim3と同様に「。、」や英数字との境目まで移動
+    (ただし、&encoding=utf-8の場合は移動量が多すぎ)。
 
 制限事項
 ========
