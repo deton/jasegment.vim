@@ -107,6 +107,27 @@ knbc_bunsetu.modelとknbc2bunsetu.awkは、
 knbc_bunsetu.vimの生成時に使用したファイルなので、
 jasegment.vimの動作時には不要です。
 
+参考: 英文のWORDと同様に、スペースで区切られた日本語を対象とするtext-object
+===========================================================================
+
+文節でなく、スペースで区切られた日本語部分を対象として
+操作したい場合があるので。
+
+&encoding=utf-8でない環境向けに、
+&encoding=utf-8の場合のiWと同様の動作を、
+[textobj-user](https://github.com/kana/vim-textobj-user)を使って、
+iEにmapする例です。
+(&encoding=utf-8の場合は、onoremap iE iWとxnoremap iE iWすればOK)
+
+```vim
+call textobj#user#plugin('nonblankchars', {
+  \ 'nonblankchars': {
+    \ '*pattern*': '\%(^\|\s\)\zs\S*\ze\%(\s\|$\)',
+    \ 'select': 'iE',
+  \ }
+\ })
+```
+
 参考: 日本語での移動を改善する同様のスクリプト
 ==============================================
 
