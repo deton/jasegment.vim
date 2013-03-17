@@ -113,6 +113,9 @@ jasegment.vimの動作時には不要です。
 文節でなく、スペースで区切られた日本語部分を対象として
 操作したい場合があるので。
 
+textobj-userを使用する例
+------------------------
+
 &encoding=utf-8でない環境向けに、
 &encoding=utf-8の場合のiWと同様の動作を、
 [textobj-user](https://github.com/kana/vim-textobj-user)を使って、
@@ -127,6 +130,11 @@ call textobj#user#plugin('nonblankchars', {
   \ }
 \ })
 ```
+
+&encoding=utf-8の場合のaWとiWと同様の動作をするプラグイン
+---------------------------------------------------------
+
+https://github.com/deton/textobj-nonblankchars.vim
 
 参考: 日本語での移動を改善する同様のスクリプト
 ==============================================
