@@ -48,6 +48,10 @@ jasegment.vimの文節区切り(knbc_bunsetuモデル):
 
     Vimは | 最も | たくさんの | コンピュータ/OSで | 利用できる | テキストエディタです。
 
+jasegment.vimで、ひらがなを終端とする文字列として分割する場合(TinySegmenter不使用。`let g:jasegment#model = 'chartype'`):
+
+    Vimは | 最もたくさんの | コンピュータ/OSで | 利用できる | テキストエディタです。
+
 jasegment.vimの単語区切り(rwcpモデル):
 
     Vim | は | 最も | たく | さん | の | コンピュータ | / | OS | で | 利用 | できる | テキストエディタ | です | 。
@@ -97,6 +101,8 @@ EmacsのM-f(forward-word):
   TinySegmenterMakerに含まれる単語区切りデータ
 * autoload/tinysegmenter/rwcp.vim:
   TinySegmenterに含まれる単語区切りデータ
+* autoload/tinysegmenter/chartype.vim:
+  TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
 * doc/jasegment.txt: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
   TinySegmenterMakerモデルファイル(再学習用)
@@ -112,6 +118,9 @@ jasegment.vimの動作時には不要です。
 
 文節でなく、スペースで区切られた日本語部分を対象として
 操作したい場合があるので。
+
+Vimでは、どのtext-objectを使うかをユーザが簡単に選べるので、
+様々なtext-objectを用意して選択肢を増やしておくと利便性が高まると思います。
 
 textobj-userを使用する例
 ------------------------
@@ -153,6 +162,13 @@ https://github.com/deton/textobj-nonblankchars.vim
     jvim3と同様に「。、」や英数字との境目まで移動
     (ただし、&encoding=utf-8の場合は移動量が多すぎ)。
 
+関連
+====
+
+* [jasentence.vim](https://github.com/deton/jasentence.vim)
+
+    )(によるsentence移動時に"、。"も文の終わりとみなすスクリプト。
+
 制限事項
 ========
 
@@ -167,4 +183,15 @@ https://github.com/deton/textobj-nonblankchars.vim
 * (ひらがなが連続する場合、文節区切りがぱっと見でわからないことがあるので、
   文節開始位置に下線を表示するオプションを付けましたが、
   ぱっと見での区切りのわかりやすさを考えると、
-  漢字の連続+ひらがなの連続をWORDとみなす方が使いやすいのかも)
+  漢字の連続+ひらがなの連続をWORDとみなす方が使いやすいのかも。
+  ということで、TinySegmenterを使用せず、
+  ひらがなを終端とする文字列として分割するchartype.vimを追加しました。)
+
+更新履歴
+========
+* 1.1.0 (2013-04-XXX)
+  * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
+    autoload/tinysegmenter/chartype.vimを追加。
+
+* 1.0.0 (2013-03-12)
+  * 最初のリリース
