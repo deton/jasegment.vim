@@ -169,6 +169,10 @@ https://github.com/deton/textobj-nonblankchars.vim
 
     )(によるsentence移動時に"、。"も文の終わりとみなすスクリプト。
 
+* [句読点に移動するmap](https://gist.github.com/deton/5138905#ftr-1)
+
+    f,tを使った「。、」への移動を、`f<C-J>`等にmapしておく設定例
+
 制限事項
 ========
 
