@@ -446,9 +446,6 @@ function! jasegment#SegmentCol(model_name, lnum)
     return cache.segcols
   endif
   let s:prev_model_name = a:model_name
-  if s:hl_id != 0
-    silent! call matchdelete(s:hl_id)
-  endif
   " まずスペース区切りのsegmentに分割
   let spsegs = split(line, '[[:space:]　]\+\zs')
   if empty(spsegs)
@@ -512,6 +509,9 @@ function! s:showmark(segcols, lnum)
     let col = segcol.col
     call add(marks, '\%' . a:lnum . 'l\%' . col . 'c')
   endfor
+  if s:hl_id != 0
+    silent! call matchdelete(s:hl_id)
+  endif
   let s:hl_id = matchadd('JaSegment', join(marks, '\|'))
 endfunction
 
