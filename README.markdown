@@ -196,6 +196,9 @@ https://github.com/deton/textobj-nonblankchars.vim
 * 1.1.0 (2013-04-XXX)
   * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
     autoload/tinysegmenter/chartype.vimを追加。
+  * デフォルトの文節区切りによる移動・選択(W,E,B,aW,iW)を使いつつ、
+    別の区切りによる移動・選択を行うmapも登録するための関数
+    jasegment#define()を追加。
 
 * 1.0.0 (2013-03-12)
   * 最初のリリース

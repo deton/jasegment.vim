@@ -29,8 +29,12 @@ W,E,B,aW,iWを置き換えます。
   文節を区切るために使うTinySegmenter用モデル名
   (autoload/tinysegmenter/にあるファイル名から.vimを除いたもの)
   省略値: 'knbc_bunsetu'
-  設定例(TinySegmenter付属の単語区切りモデルを使う場合):
-    let g:jasegment#model = 'rwcp'
+  設定例(ひらがなを終端とする文字列として分割する場合(TinySegmenter不使用)):
+    let g:jasegment#model = 'chartype'
+
+'g:jasegment#model_word'			*'g:jasegment#model_word'*
+  |jasegment#cword()|で単語を取得するために使うTinySegmenter用モデル名
+  省略値: 'jeita'
 
 'g:jasegment#highlight'				*'g:jasegment#highlight'*
   カーソル行の文節開始位置に下線を表示する場合は1以上に設定します。
@@ -43,6 +47,17 @@ W,E,B,aW,iWを置き換えます。
   設定例:
     let g:jasegment#highlight = 2
 
+'g:jasegment#splitpat'				*'g:jasegment#splitpat'*
+  強制的に文節区切りを入れる文字(パターン)の指定。
+  この文字(パターン)の後に強制的に文節区切りを入れます。
+  省略値: '[^[:space:]　][?!、。]\+\zs'
+  設定例(全角の？！の後で文節区切りを入れたい場合):
+    let g:jasegment#splitpat = '[^[:space:]　][?!、。？！]\+\zs'
+
+'g:jasegment#splitsep'				*'g:jasegment#splitsep'*
+  |:JaSegmentSplit|で分かち書きする際の区切り文字列
+  省略値: ' '
+
 'loaded_jasegment'				*'loaded_jasegment'*
   このプラグインを読み込みたくない場合に次のように設定します。
     let g:loaded_jasegment = 1
@@ -50,13 +65,30 @@ W,E,B,aW,iWを置き換えます。
 ==============================================================================
 3. 関数						*jasegment-function*
 
+jasegment#define()				*jasegment#define()*
+  jasegment#model以外のモデルを使った区切りに対して、
+  移動とtext-object選択用mapを登録します。
+  W,E,B,aW,iWはjasegment#modelを使った区切りによる移動・選択として使いつつ、
+  別の区切りによる移動・選択も行えるようにしたい場合向けです。
+  例えば、jasegment#modelがデフォルトの'knbc_bunsetu'で、
+  それより少し大きな区切りになる'chartype'での移動・選択も行いたい場合、
+  以下の設定をすると、gw,ge,gb,ie,aeのmapを登録可能です。 >
+    call jasegment#define('chartype', {
+      \ 'move-n': 'gw',
+      \ 'move-p': 'gb',
+      \ 'move-N': 'ge',
+      \ 'select-i': 'ie',
+      \ 'select-a': 'ae',
+    \ })
+<
+
 jasegment#cword()				*jasegment#cword()*
   カーソル位置のword(単語)文字列を取得します。
-  g:jasegment#model_word(デフォルトは'jeita')を使ってsegmentを区切ります。
+  |'g:jasegment#model_word'|を使ってsegmentを区切ります。
 
 jasegment#cWORD()				*jasegment#cWORD()*
   カーソル位置のWORD(文節)文字列を取得します。
-  g:jasegment#model(デフォルトは'knbc_bunsetu')を使ってsegmentを区切ります。
+  |'g:jasegment#model'|を使ってsegmentを区切ります。
 
 ==============================================================================
 4. コマンド					*jasegment-command*
@@ -65,6 +97,8 @@ jasegment#cWORD()				*jasegment#cWORD()*
   指定行を、文節で分かち書きした内容に置換する。
   (なお、連続する複数個のタブやスペースは全て1つのスペースに置換。
   主に文節区切り再学習用データ作成用)
+  文節の間に入れる文字(デフォルトはスペース)は、
+  |'g:jasegment#splitsep'|で設定可能です。
 
 ==============================================================================
 5. 問題点					*jasegment-problem*

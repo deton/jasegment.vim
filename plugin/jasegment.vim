@@ -4,7 +4,7 @@ scriptencoding utf-8
 " plugin/jasegment.vim - E,W,Bでの移動を文節単位にするためのスクリプト。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-06
+" Last Change: 2013-04-06
 "
 " Description:
 " * 日本語文章上でのE,W,Bでの移動量を、文節単位にします。
@@ -26,23 +26,23 @@ if !exists(":JaSegmentSplit")
   command! -range JaSegmentSplit call jasegment#Split(<line1>, <line2>)
 endif
 
-nnoremap <silent> <Plug>JaSegmentMoveNE :<C-U>call jasegment#MoveN('jasegment#MoveE', v:count1, 0, 0, 0)<CR>
-nnoremap <silent> <Plug>JaSegmentMoveNW :<C-U>call jasegment#MoveN('jasegment#MoveW', v:count1, 0, 0, 0)<CR>
-nnoremap <silent> <Plug>JaSegmentMoveNB :<C-U>call jasegment#MoveN('jasegment#MoveB', v:count1, 0, 0, 0)<CR>
-onoremap <silent> <Plug>JaSegmentMoveOE :<C-U>call jasegment#MoveO('jasegment#MoveE', v:count1)<CR>
-onoremap <silent> <Plug>JaSegmentMoveOW :<C-U>call jasegment#MoveN('jasegment#MoveW', v:count1, 1, 0, 0)<CR>
-onoremap <silent> <Plug>JaSegmentMoveOB :<C-U>call jasegment#MoveN('jasegment#MoveB', v:count1, 0, 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNE :<C-U>call jasegment#MoveN(g:jasegment#model, 'jasegment#MoveE', v:count1, 0, 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNW :<C-U>call jasegment#MoveN(g:jasegment#model, 'jasegment#MoveW', v:count1, 0, 0, 0)<CR>
+nnoremap <silent> <Plug>JaSegmentMoveNB :<C-U>call jasegment#MoveN(g:jasegment#model, 'jasegment#MoveB', v:count1, 0, 0, 0)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOE :<C-U>call jasegment#MoveO(g:jasegment#model, 'jasegment#MoveE', v:count1)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOW :<C-U>call jasegment#MoveN(g:jasegment#model, 'jasegment#MoveW', v:count1, 1, 0, 0)<CR>
+onoremap <silent> <Plug>JaSegmentMoveOB :<C-U>call jasegment#MoveN(g:jasegment#model, 'jasegment#MoveB', v:count1, 0, 0, 0)<CR>
 " 一度<Esc>で抜けてcursor posをセット
 " (:<C-U>callだと、cursor posがVisual mode開始時の位置になるため、
 "  cursorがselectionの先頭にあったのか末尾にあったのかわからない)
-vnoremap <silent> <Plug>JaSegmentMoveVE <Esc>:call jasegment#MoveV('jasegment#MoveE')<CR>
-vnoremap <silent> <Plug>JaSegmentMoveVW <Esc>:call jasegment#MoveV('jasegment#MoveW')<CR>
-vnoremap <silent> <Plug>JaSegmentMoveVB <Esc>:call jasegment#MoveV('jasegment#MoveB')<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVE <Esc>:call jasegment#MoveV(g:jasegment#model, 'jasegment#MoveE')<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVW <Esc>:call jasegment#MoveV(g:jasegment#model, 'jasegment#MoveW')<CR>
+vnoremap <silent> <Plug>JaSegmentMoveVB <Esc>:call jasegment#MoveV(g:jasegment#model, 'jasegment#MoveB')<CR>
 
-onoremap <silent> <Plug>JaSegmentTextObjA :<C-U>call jasegment#select_function_wrapper('jasegment#select_a', 'o', v:count1)<CR>
-vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call jasegment#select_function_wrapperv('jasegment#select_a', 0)<CR>
-onoremap <silent> <Plug>JaSegmentTextObjI :<C-U>call jasegment#select_function_wrapper('jasegment#select_i', 'o', v:count1)<CR>
-vnoremap <silent> <Plug>JaSegmentTextObjVI <Esc>:call jasegment#select_function_wrapperv('jasegment#select_i', 1)<CR>
+onoremap <silent> <Plug>JaSegmentTextObjA :<C-U>call jasegment#select_function_wrapper(g:jasegment#model, 'jasegment#select_a', 'o', v:count1)<CR>
+vnoremap <silent> <Plug>JaSegmentTextObjVA <Esc>:call jasegment#select_function_wrapperv(g:jasegment#model, 'jasegment#select_a', 0)<CR>
+onoremap <silent> <Plug>JaSegmentTextObjI :<C-U>call jasegment#select_function_wrapper(g:jasegment#model, 'jasegment#select_i', 'o', v:count1)<CR>
+vnoremap <silent> <Plug>JaSegmentTextObjVI <Esc>:call jasegment#select_function_wrapperv(g:jasegment#model, 'jasegment#select_i', 1)<CR>
 
 if !get(g:, 'jasegment_no_default_key_mappings', 0)
   nmap <silent> E <Plug>JaSegmentMoveNE
@@ -69,6 +69,7 @@ if !exists('g:jasegment#highlight')
 endif
 
 if g:jasegment#highlight >= 2
+  " Insert modeを抜けた時にhighlight表示を更新する
   augroup JaSegment
   autocmd!
   autocmd InsertLeave * call jasegment#OnInsertLeave()

@@ -4,7 +4,7 @@ scriptencoding utf-8
 " autoload/jasegment.vim - TinySegmenterを使って、日本語を文節や単語で分割
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-03-09
+" Last Change: 2013-04-06
 " Copyright (c) 2013 KIHARA, Hideto
 " License: So-called MIT/X license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
@@ -63,11 +63,47 @@ function! jasegment#Split(line1, line2)
   let g:jasegment#highlight = hlsave
 endfunction
 
+" modelを使用するmappingを登録する
+function! jasegment#define(model, obj)
+  let wkey = get(a:obj, 'move-n', '')
+  if wkey != ''
+    execute 'nnoremap <silent>' wkey ":<C-U>call jasegment#MoveN('" . a:model . "', 'jasegment#MoveW', v:count1, 0, 0, 0)<CR>"
+    execute 'onoremap <silent>' wkey ":<C-U>call jasegment#MoveN('" . a:model . "', 'jasegment#MoveW', v:count1, 1, 0, 0)<CR>"
+    execute 'xnoremap <silent>' wkey "<Esc>:call jasegment#MoveV('" . a:model . "', 'jasegment#MoveW')<CR>"
+  endif
+
+  let ekey = get(a:obj, 'move-N', '')
+  if ekey != ''
+    execute 'nnoremap <silent> ' ekey ":<C-U>call jasegment#MoveN('" . a:model . "', 'jasegment#MoveE', v:count1, 0, 0, 0)<CR>"
+    execute 'onoremap <silent> ' ekey ":<C-U>call jasegment#MoveO('" . a:model . "', 'jasegment#MoveE', v:count1)<CR>"
+    execute 'xnoremap <silent> ' ekey "<Esc>:call jasegment#MoveV('" . a:model . "', 'jasegment#MoveE')<CR>"
+  endif
+
+  let bkey = get(a:obj, 'move-p', '')
+  if bkey != ''
+    execute 'nnoremap <silent> ' bkey ":<C-U>call jasegment#MoveN('" . a:model . "', 'jasegment#MoveB', v:count1, 0, 0, 0)<CR>"
+    execute 'onoremap <silent> ' bkey ":<C-U>call jasegment#MoveN('" . a:model . "', 'jasegment#MoveB', v:count1, 0, 0, 0)<CR>"
+    execute 'xnoremap <silent> ' bkey "<Esc>:call jasegment#MoveV('" . a:model . "', 'jasegment#MoveB')<CR>"
+  endif
+
+  let ikey = get(a:obj, 'select-i', '')
+  if ikey != ''
+    execute 'onoremap <silent> ' ikey ":<C-U>call jasegment#select_function_wrapper('" . a:model . "', 'jasegment#select_i', 'o', v:count1)<CR>"
+    execute 'xnoremap <silent> ' ikey "<Esc>:call jasegment#select_function_wrapperv('" . a:model . "', 'jasegment#select_i', 1)<CR>"
+  endif
+
+  let akey = get(a:obj, 'select-a', '')
+  if akey != ''
+    execute 'onoremap <silent> ' akey ":<C-U>call jasegment#select_function_wrapper('" . a:model . "', 'jasegment#select_a', 'o', v:count1)<CR>"
+    execute 'xnoremap <silent> ' akey "<Esc>:call jasegment#select_function_wrapperv('" . a:model . "', 'jasegment#select_a', 0)<CR>"
+  endif
+endfunction
+
 " Move{E,W,B}をcountに対応させるためのラッパ
 " @param stay MoveE用。現位置がsegment末尾の場合、
 "  次segmentに移動したくない場合に1を指定。textobj用。
 " @param countspace iW用に、空白もcountに含める
-function! jasegment#MoveN(func, cnt, omode, stay, countspace)
+function! jasegment#MoveN(model, func, cnt, omode, stay, countspace)
   let s:origpos = getpos('.')
   let stay = a:stay
   let islast = 0
@@ -76,7 +112,7 @@ function! jasegment#MoveN(func, cnt, omode, stay, countspace)
     if cnt == 1
       let islast = 1
     endif
-    let endcol = function(a:func)(stay, islast, a:omode)
+    let endcol = function(a:func)(a:model, stay, islast, a:omode)
     let stay = 0
     let cnt -= 1
     if a:countspace && endcol > 0 && cnt > 0
@@ -87,20 +123,20 @@ function! jasegment#MoveN(func, cnt, omode, stay, countspace)
 endfunction
 
 " MoveEをOperator-pending modeに対応させるためのラッパ
-function! jasegment#MoveO(func, cnt)
+function! jasegment#MoveO(model, func, cnt)
   normal! v
-  call jasegment#MoveN(a:func, a:cnt, 1, 0, 0)
+  call jasegment#MoveN(a:model, a:func, a:cnt, 1, 0, 0)
 endfunction
 
 " Move{E,W,B}をVisual modeに対応させるためのラッパ
-function! jasegment#MoveV(func)
+function! jasegment#MoveV(model, func)
   let cnt = v:prevcount
   if cnt == 0
     let cnt = 1
   endif
   while cnt > 0
     " islastはOperator-pending modeのみ
-    call function(a:func)(0, 0, 0)
+    call function(a:func)(a:model, 0, 0, 0)
     let cnt -= 1
   endwhile
   let pos = getpos('.')
@@ -108,16 +144,16 @@ function! jasegment#MoveV(func)
   call cursor(pos[1], pos[2])
 endfunction
 
-function! jasegment#MoveE(stay, dummy, dummy2)
+function! jasegment#MoveE(model, stay, dummy, dummy2)
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
+  let segcols = jasegment#SegmentCol(a:model, lnum)
   if empty(segcols) " 空行の場合、次行最初のsegmentの末尾に移動
     if lnum + 1 > line('$')
       normal! E
       return 0
     endif
     call cursor(lnum + 1, 1)
-    return jasegment#MoveE(1, 0, 0)
+    return jasegment#MoveE(a:model, 1, 0, 0)
   endif
   let curcol = col('.')
   let i = 0
@@ -149,7 +185,7 @@ function! jasegment#MoveE(stay, dummy, dummy2)
     return 0
   endif
   call cursor(lnum + 1, 1)
-  return jasegment#MoveE(1, 0, 0)
+  return jasegment#MoveE(a:model, 1, 0, 0)
 endfunction
 
 " segment末尾の空白を含めた、segment終了位置を返す。
@@ -168,7 +204,7 @@ function! s:EndcolIncludeSpaces(segcols, idx)
   return nextcol - 1
 endfunction
 
-function! jasegment#MoveW(dummy, islast, omode)
+function! jasegment#MoveW(model, dummy, islast, omode)
   if a:islast && a:omode && v:operator == 'c' && match(getline('.'), '\%' . col('.') . 'c[[:space:]　]') == -1 && !s:AtLineEnd()
     " cWはsegment末尾の空白は対象に入れない。cEと同じ動作。|cW|
     " ただし、空白文字上でない場合。|WORD|
@@ -177,10 +213,10 @@ function! jasegment#MoveW(dummy, islast, omode)
     call setpos('.', s:origpos)
     normal! v
     call setpos('.', curpos)
-    return jasegment#MoveE(1, 0, 0)
+    return jasegment#MoveE(a:model, 1, 0, 0)
   endif
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
+  let segcols = jasegment#SegmentCol(a:model, lnum)
   if empty(segcols)
     normal! W
     return 0
@@ -219,9 +255,9 @@ function! jasegment#MoveW(dummy, islast, omode)
   call search('[^[:space:]　]', 'c', lnum)
 endfunction
 
-function! jasegment#MoveB(dummy, dummy2, dummy3)
+function! jasegment#MoveB(model, dummy, dummy2, dummy3)
   let lnum = line('.')
-  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
+  let segcols = jasegment#SegmentCol(a:model, lnum)
   " 空行でない && 現位置より前に空白以外がある場合
   if !empty(segcols) && search('[^[:space:]　]', 'bn', lnum) > 0
     let curcol = col('.')
@@ -242,7 +278,7 @@ function! jasegment#MoveB(dummy, dummy2, dummy3)
     return 0
   endif
   let lnum -= 1
-  let segcols = jasegment#SegmentCol(g:jasegment#model, lnum)
+  let segcols = jasegment#SegmentCol(a:model, lnum)
   if empty(segcols) " 空行
     call cursor(lnum, 1)
     return 0
@@ -266,11 +302,11 @@ function! s:AtLineEnd()
 endfunction
 
 " from vim-textobj-user
-function! jasegment#select_function_wrapper(function_name, previous_mode, count1)
+function! jasegment#select_function_wrapper(model, function_name, previous_mode, count1)
   let ORIG_POS = getpos('.')
   " call s:prepare_selection(a:previous_mode) " countがクリアされるので省略
 
-  let _ = function(a:function_name)(a:count1)
+  let _ = function(a:function_name)(a:model, a:count1)
   if _ is 0
     if a:previous_mode ==# 'v'
       normal! gv
@@ -291,7 +327,7 @@ function! s:pos_lt(pos1, pos2)  " less than
 endfunction
 
 " Visual modeでのcount指定に対応するために一部変更。
-function! jasegment#select_function_wrapperv(function_name, inner)
+function! jasegment#select_function_wrapperv(model, function_name, inner)
   let cnt = v:prevcount
   if cnt == 0
     let cnt = 1
@@ -302,18 +338,18 @@ function! jasegment#select_function_wrapperv(function_name, inner)
   let otherpos = getpos('.')
   execute 'normal! gvo' . "\<Esc>"
   if pos == otherpos
-    call jasegment#select_function_wrapper(a:function_name, 'v', cnt)
+    call jasegment#select_function_wrapper(a:model, a:function_name, 'v', cnt)
     return
   endif
   " 選択済の場合、E or Bで移動後、"aW"の場合は隣接する連続空白を含める
   " TODO: iWの場合に、単語間の連続空白をcountに含める
   if s:pos_lt(pos, otherpos)
-    call jasegment#MoveN('jasegment#MoveB', cnt, 0, 0, 1)
+    call jasegment#MoveN(a:model, 'jasegment#MoveB', cnt, 0, 0, 1)
     if !a:inner
       call search('[[:space:]　]\+\%' . col('.') . 'c', 'bc', line('.'))
     endif
   else
-    call jasegment#MoveN('jasegment#MoveE', cnt, 0, 0, 0)
+    call jasegment#MoveN(a:model, 'jasegment#MoveE', cnt, 0, 0, 0)
     if !a:inner
       call search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.'))
     endif
@@ -323,7 +359,7 @@ function! jasegment#select_function_wrapperv(function_name, inner)
   call setpos('.', newpos)
 endfunction
 
-function! jasegment#select_a(count1)
+function! jasegment#select_a(model, count1)
   let spincluded = 0
   let line = getline('.')
   if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
@@ -334,14 +370,14 @@ function! jasegment#select_a(count1)
     let spincluded = 1
   else
     " segment開始位置以降を対象に含める
-    let segcol = jasegment#csegment(g:jasegment#model, line('.'), col('.'))
+    let segcol = jasegment#csegment(a:model, line('.'), col('.'))
     if empty(segcol)
       return 0
     endif
     call cursor(0, segcol.col)
   endif
   let st = getpos('.')
-  call jasegment#MoveN('jasegment#MoveE', a:count1, 0, 1, 0)
+  call jasegment#MoveN(a:model, 'jasegment#MoveE', a:count1, 0, 1, 0)
   " 空白上でなかった場合、segment終了位置直後の連続する空白を対象に含める
   if !spincluded
     if search('\%' . col('.') . 'c.[[:space:]　]\+', 'ce', line('.')) == 0
@@ -357,7 +393,7 @@ function! jasegment#select_a(count1)
   return ['v', st, ed]
 endfunction
 
-function! jasegment#select_i(count1)
+function! jasegment#select_i(model, count1)
   let cnt = a:count1
   let line = getline('.')
   if line == '' || match(line, '\%' . col('.') . 'c[[:space:]　]') != -1
@@ -377,14 +413,14 @@ function! jasegment#select_i(count1)
     endif
   else
     " segment開始位置以降を対象に含める
-    let segcol = jasegment#csegment(g:jasegment#model, line('.'), col('.'))
+    let segcol = jasegment#csegment(a:model, line('.'), col('.'))
     if empty(segcol)
       return 0
     endif
     call cursor(0, segcol.col)
   endif
   let st = getpos('.')
-  call jasegment#MoveN('jasegment#MoveE', cnt, 0, 1, 1)
+  call jasegment#MoveN(a:model, 'jasegment#MoveE', cnt, 0, 1, 1)
   let ed = getpos('.')
   return ['v', st, ed]
 endfunction
@@ -393,6 +429,7 @@ endfunction
 " 直前に分割したsegmentをキャッシュ
 let s:cache = {}
 let s:hl_id = 0
+let s:prev_model_name = g:jasegment#model
 
 " 行をsegmentに分割して、各segmentの文字列と開始col、終了colの配列を返す。
 " 'segmentStr1segmentStr2...'
@@ -402,8 +439,13 @@ function! jasegment#SegmentCol(model_name, lnum)
   let line = getline(a:lnum)
   let cache = get(s:cache, a:model_name, {})
   if !empty(cache) && line ==# cache.line
+    if g:jasegment#highlight && a:model_name != s:prev_model_name
+      call s:showmark(cache.segcols, a:lnum)
+      let s:prev_model_name = a:model_name
+    endif
     return cache.segcols
   endif
+  let s:prev_model_name = a:model_name
   if s:hl_id != 0
     silent! call matchdelete(s:hl_id)
   endif
@@ -473,8 +515,9 @@ function! s:showmark(segcols, lnum)
   let s:hl_id = matchadd('JaSegment', join(marks, '\|'))
 endfunction
 
+" Insert modeを抜けた時にhighlight表示を更新する
 function! jasegment#OnInsertLeave()
-  call jasegment#SegmentCol(g:jasegment#model, line('.'))
+  call jasegment#SegmentCol(s:prev_model_name, line('.'))
 endfunction
 
 " col位置のsegmentを取得する
