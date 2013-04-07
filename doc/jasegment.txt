@@ -30,7 +30,7 @@ W,E,B,aW,iWを置き換えます。
   (autoload/tinysegmenter/にあるファイル名から.vimを除いたもの)
   省略値: 'knbc_bunsetu'
   設定例(ひらがなを終端とする文字列として分割する場合(TinySegmenter不使用)):
-    let g:jasegment#model = 'chartype'
+    let g:jasegment#model = 'endhira'
 
 'g:jasegment#model_word'			*'g:jasegment#model_word'*
   |jasegment#cword()|で単語を取得するために使うTinySegmenter用モデル名
@@ -71,9 +71,9 @@ jasegment#define()				*jasegment#define()*
   W,E,B,aW,iWはjasegment#modelを使った区切りによる移動・選択として使いつつ、
   別の区切りによる移動・選択も行えるようにしたい場合向けです。
   例えば、jasegment#modelがデフォルトの'knbc_bunsetu'で、
-  それより少し大きな区切りになる'chartype'での移動・選択も行いたい場合、
+  それより少し大きな区切りになる'endhira'での移動・選択も行いたい場合、
   以下の設定をすると、gw,ge,gb,ie,aeのmapを登録可能です。 >
-    call jasegment#define('chartype', {
+    call jasegment#define('endhira', {
       \ 'move-n': 'gw',
       \ 'move-p': 'gb',
       \ 'move-N': 'ge',

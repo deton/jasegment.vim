@@ -48,7 +48,7 @@ jasegment.vimの文節区切り(knbc_bunsetuモデル):
 
     Vimは | 最も | たくさんの | コンピュータ/OSで | 利用できる | テキストエディタです。
 
-jasegment.vimで、ひらがなを終端とする文字列として分割する場合(TinySegmenter不使用。`let g:jasegment#model = 'chartype'`):
+jasegment.vimで、ひらがなを終端とする文字列として分割する場合(TinySegmenter不使用。`let g:jasegment#model = 'endhira'`):
 
     Vimは | 最もたくさんの | コンピュータ/OSで | 利用できる | テキストエディタです。
 
@@ -101,7 +101,7 @@ EmacsのM-f(forward-word):
   TinySegmenterMakerに含まれる単語区切りデータ
 * autoload/tinysegmenter/rwcp.vim:
   TinySegmenterに含まれる単語区切りデータ
-* autoload/tinysegmenter/chartype.vim:
+* autoload/tinysegmenter/endhira.vim:
   TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
 * doc/jasegment.txt: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
@@ -189,13 +189,13 @@ https://github.com/deton/textobj-nonblankchars.vim
   ぱっと見での区切りのわかりやすさを考えると、
   漢字の連続+ひらがなの連続をWORDとみなす方が使いやすいのかも。
   ということで、TinySegmenterを使用せず、
-  ひらがなを終端とする文字列として分割するchartype.vimを追加しました。)
+  ひらがなを終端とする文字列として分割するendhira.vimを追加しました。)
 
 更新履歴
 ========
 * 1.1.0 (2013-04-XXX)
   * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
-    autoload/tinysegmenter/chartype.vimを追加。
+    autoload/tinysegmenter/endhira.vimを追加。
   * デフォルトの文節区切りによる移動・選択(W,E,B,aW,iW)を使いつつ、
     別の区切りによる移動・選択を行うmapも登録するための関数
     jasegment#define()を追加。
