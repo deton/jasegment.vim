@@ -81,6 +81,7 @@ jasegment#define()				*jasegment#define()*
       \ 'select-a': 'ae',
     \ })
 <
+  (注: この設定例では、組み込みのgw,geを上書きしています)
 
 jasegment#cword()				*jasegment#cword()*
   カーソル位置のword(単語)文字列を取得します。

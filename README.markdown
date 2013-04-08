@@ -103,6 +103,8 @@ EmacsのM-f(forward-word):
   TinySegmenterに含まれる単語区切りデータ
 * autoload/tinysegmenter/endhira.vim:
   TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
+* autoload/tinysegmenter/nonblank.vim:
+  英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
 * doc/jasegment.txt: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
   TinySegmenterMakerモデルファイル(再学習用)
@@ -122,8 +124,23 @@ jasegment.vimの動作時には不要です。
 Vimでは、どのtext-objectを使うかをユーザが簡単に選べるので、
 様々なtext-objectを用意して選択肢を増やしておくと利便性が高まると思います。
 
-textobj-userを使用する例
-------------------------
+方法1: 同梱のnonblank.vimを使う例
+---------------------------------
+
+```vim
+call jasegment#define('nonblank', {
+  \ 'move-n': 'gW',
+  \ 'move-p': 'gB',
+  \ 'move-N': 'gE',
+  \ 'select-i': 'iE',
+  \ 'select-a': 'aE',
+\ })
+```
+
+(注: 上記設定例では、組み込みの`gE`を上書きしています)
+
+方法2: textobj-userを使用する例
+-------------------------------
 
 &encoding=utf-8でない環境向けに、
 &encoding=utf-8の場合のiWと同様の動作を、
@@ -140,8 +157,8 @@ call textobj#user#plugin('nonblankchars', {
 \ })
 ```
 
-&encoding=utf-8の場合のaWとiWと同様の動作をするプラグイン
----------------------------------------------------------
+方法3: &encoding=utf-8の場合のaWとiWと同様の動作をするプラグイン
+----------------------------------------------------------------
 
 https://github.com/deton/textobj-nonblankchars.vim
 
@@ -196,6 +213,8 @@ https://github.com/deton/textobj-nonblankchars.vim
 * 1.1.0 (2013-04-XXX)
   * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
     autoload/tinysegmenter/endhira.vimを追加。
+  * 英文のWORDと同様に、空白文字(全角空白含む)で区切る
+    autoload/tinysegmenter/nonblank.vimを追加(TinySegmenter不使用)。
   * デフォルトの文節区切りによる移動・選択(W,E,B,aW,iW)を使いつつ、
     別の区切りによる移動・選択を行うmapも登録するための関数
     jasegment#define()を追加。
