@@ -9,8 +9,7 @@ scriptencoding utf-8
 " Last Change: 2013-04-13
 
 if !exists('g:tinysegmenter#endhira#splitpat')
-  " ひらがなで終端される文字列として分割。
-  " (g:jasegment#splitpatに「、。?!」が含まれている前提)
+  " ひらがなで終端される文字列として分割
   let g:tinysegmenter#endhira#splitpat = '[ぁ-ん、。?!]\+\zs'
 endif
 

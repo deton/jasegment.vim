@@ -48,11 +48,30 @@ W,E,B,aW,iWを置き換えます。
     let g:jasegment#highlight = 2
 
 'g:jasegment#splitpat'				*'g:jasegment#splitpat'*
-  強制的に文節区切りを入れる文字(パターン)の指定。
+  強制的に文節区切りを入れる文字(パターン)の指定。|split()|の引数として使用。
   この文字(パターン)の後に強制的に文節区切りを入れます。
   省略値: '[^[:space:]　][?!、。]\+\zs'
   設定例(全角の？！の後で文節区切りを入れたい場合):
     let g:jasegment#splitpat = '[^[:space:]　][?!、。？！]\+\zs'
+  注:
+    区切りモデルによっては、
+    独自の区切りパターンを持つもの(endhira, nonblank)があり、
+    その場合はg:jasegment#splitpatは使用されません。
+    変更したい場合は、各モデルの区切りパターン
+    (g:tinysegmenter#endhira#splitpat, g:tinysegmenter#nonblank#splitpat)
+    を設定してください。
+
+'g:tinysegmenter#endhira#splitpat'	*'g:tinysegmenter#endhira#splitpat'*
+  区切りモデルとして、endhira.vim使用時に、
+  ひらがなで終端される文字列として分割するための区切りパターン。
+  省略値: '[ぁ-ん、。?!]\+\zs'
+
+'g:tinysegmenter#nonblank#splitpat'	*'g:tinysegmenter#nonblank#splitpat'*
+  区切りモデルとして、nonblank.vim使用時に、
+  空白文字で分割するための区切りパターン。
+  (区切りモデルは、空白文字によって区切られた各文字列に対して呼ばれるため、
+  さらなる分割が不要なnonblank.vimでは空パターン)
+  省略値: ''
 
 'g:jasegment#splitsep'				*'g:jasegment#splitsep'*
   |:JaSegmentSplit|で分かち書きする際の区切り文字列
