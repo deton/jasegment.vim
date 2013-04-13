@@ -6,9 +6,11 @@ scriptencoding utf-8
 " TinySegmenter不使用。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-04-08
+" Last Change: 2013-04-09
 
-let g:tinysegmenter#nonblank#splitpat = ''
+if !exists('g:tinysegmenter#nonblank#splitpat')
+  let g:tinysegmenter#nonblank#splitpat = ''
+endif
 
 function! tinysegmenter#nonblank#segment(input)
   " a:inputはautoload/jasegment.vim内で空白文字で区切られた後なのでそのまま返す

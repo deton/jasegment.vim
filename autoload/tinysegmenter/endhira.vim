@@ -6,14 +6,15 @@ scriptencoding utf-8
 " 「(漢字|カタカナ|記号|英数字)+ひらがな」を1つの文節とみなす。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-04-07
+" Last Change: 2013-04-13
 
-if !exists('g:jasegment#tinysegmenter#endhira#splitpat')
+if !exists('g:tinysegmenter#endhira#splitpat')
   " ひらがなで終端される文字列として分割。
   " (g:jasegment#splitpatに「、。?!」が含まれている前提)
-  let g:jasegment#tinysegmenter#endhira#splitpat = '[ぁ-ん、。?!]\+\zs'
+  let g:tinysegmenter#endhira#splitpat = '[ぁ-ん、。?!]\+\zs'
 endif
 
 function! tinysegmenter#endhira#segment(input)
-  return split(a:input, g:jasegment#tinysegmenter#endhira#splitpat)
+  " autoload/jasegment.vim内でg:tinysegmenter#endhira#splitpatで区切られる
+  return [a:input]
 endfunction
