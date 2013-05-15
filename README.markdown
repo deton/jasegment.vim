@@ -184,11 +184,15 @@ https://github.com/deton/textobj-nonblankchars.vim
 
 * [jasentence.vim](https://github.com/deton/jasentence.vim)
 
-    )(によるsentence移動時に"、。"も文の終わりとみなすスクリプト。
+    `)`や`(`キーによるsentence移動時に"、。"も文の終わりとみなすスクリプト。
 
 * [句読点に移動するmap](https://gist.github.com/deton/5138905#ftr-1)
 
     f,tを使った「。、」への移動を、`f<C-J>`等にmapしておく設定例
+
+* [textobj-mbboundary.vim](https://github.com/deton/textobj-mbboundary.vim)
+
+    ASCII文字とマルチバイト文字の境界を区切りとするtext-object
 
 制限事項
 ========
@@ -210,7 +214,7 @@ https://github.com/deton/textobj-nonblankchars.vim
 
 更新履歴
 ========
-* 1.1.0 (2013-04-XXX)
+* 1.1.0 (2013-05-XXX)
   * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
     autoload/tinysegmenter/endhira.vimを追加。
   * 英文のWORDと同様に、空白文字(全角空白含む)で区切る
