@@ -214,7 +214,7 @@ https://github.com/deton/textobj-nonblankchars.vim
 
 更新履歴
 ========
-* 1.1.0 (2013-05-XXX)
+* 1.1.0 (2013-05-18)
   * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
     autoload/tinysegmenter/endhira.vimを追加。
   * 英文のWORDと同様に、空白文字(全角空白含む)で区切る
