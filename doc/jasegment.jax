@@ -1,4 +1,4 @@
-*jasegment.txt*   change E,W,B motion for Japanese text using TinySegmenter.
+*jasegment.jax*   日本語文章でのWORD移動(W,E,B)を文節単位にするスクリプト
 
 			  jasegment.vim説明書
 
