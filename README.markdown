@@ -101,6 +101,9 @@ EmacsのM-f(forward-word):
 * autoload/tinysegmenter/func.vim: TinySegmenterの移植。単語や文節区切り処理
 * autoload/tinysegmenter/knbc_bunsetu.vim:
   KNBコーパスから文節区切りを学習させたデータ
+* autoload/tinysegmenter/wpci_bunsetu.vim:
+  Wikipediaデータの一部をCaboChaで文節区切りしたものを学習させたデータ。
+  knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
 * autoload/tinysegmenter/jeita.vim: 
   TinySegmenterMakerに含まれる単語区切りデータ
 * autoload/tinysegmenter/rwcp.vim:
@@ -109,7 +112,7 @@ EmacsのM-f(forward-word):
   TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
 * autoload/tinysegmenter/nonblank.vim:
   英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
-* doc/jasegment.txt: ドキュメント
+* doc/jasegment.jax: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
   TinySegmenterMakerモデルファイル(再学習用)
 * knbc2bunsetu.awk: KNBコーパスから、TinySegmenterMaker用の文節区切り学習用の
@@ -218,6 +221,20 @@ https://github.com/deton/textobj-nonblankchars.vim
 
 更新履歴
 ========
+* 1.1.1 (2014-01-XXX)
+  * doc/jasegment.txtをdoc/jasegment.jaxに名前変更。
+  * Wikipediaデータの一部をCaboChaで文節区切りしたものをTinySegmenterMakerで
+    学習させたautoload/tinysegmenter/wpci_bunsetu.vimを追加。
+    knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
+
+knbc_bunsetu.vim:
+
+    文節区切りが | ぱっと | 見でわからないことが | あるので、
+
+wpci_bunsetu.vim:
+
+    文節区切りが | ぱっと | 見でわから | ない | ことが | あるので、
+
 * 1.1.0 (2013-05-18)
   * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
     autoload/tinysegmenter/endhira.vimを追加。
