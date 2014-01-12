@@ -21,16 +21,48 @@ if !exists('g:jasegment#cabocha#enc')
 endif
 
 function! jasegment#cabocha#segment(input)
-  return s:ExecuteCabocha(a:input)
+  " TODO: use vimproc
+  if &encoding ==# g:jasegment#cabocha#enc
+    let lines = s:Exec(a:input)
+  else
+    let lines = s:ExecUsingBuf(a:input)
+  endif
+  " cabocha実行失敗?
+  if empty(lines)
+    return [a:input]
+  endif
+  return s:cabocha2list(lines)
+endfunction
+
+function! s:cabocha2list(lines)
+  let res = []
+  let words = []
+  for line in a:lines
+    " 次の文節開始 || 終了
+    if line =~# '\V\^*' || line =~# '^EOS$'
+      if !empty(words)
+        call add(res, join(words, ''))
+      endif
+      let words = []
+    else
+      call add(words, substitute(line, '\t.*$', '', ''))
+    endif
+  endfor
+  return res
+endfunction
+
+function! s:Exec(input)
+  let res = system(g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args, a:input)
+  return split(res, '\n')
 endfunction
 
 " cabochaにリダイレクトする文字列を保持する一時ファイル名
 let s:cmdfile = tempname()
 
-" cabochaを実行する
-function! s:ExecuteCabocha(input)
+" 一時バッファを使ってencoding変換してcabochaを実行
+function! s:ExecUsingBuf(input)
   if s:OpenWindow('new') < 0
-    return -1
+    return []
   endif
   setlocal nobuflisted
   setlocal noswapfile
@@ -38,28 +70,15 @@ function! s:ExecuteCabocha(input)
   silent execute 'write! ++enc=' . g:jasegment#cabocha#enc . ' ' . s:cmdfile
   silent %d _
 
-  silent execute 'read! ++enc=' . g:jasegment#cabocha#enc . ' "' . g:jasegment#cabocha#cmd . '" ' . g:jasegment#cabocha#args . ' < "' . s:cmdfile . '"'
+  silent execute 'read! ++enc=' . g:jasegment#cabocha#enc . ' ' . g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args . ' < "' . s:cmdfile . '"'
   if &encoding !=# g:jasegment#cabocha#enc
     setlocal fileencoding=&encoding
   endif
   "return 0 " DEBUG: 実行結果確認
 
-  silent! :g/^\([^\t]\+\)\t.*$/s//\1/
   let lines = getline(1, '$')
   bwipeout!
-
-  let res = []
-  let words = []
-  for line in lines
-    " 次の文節開始 || 終了
-    if !empty(words) && (line =~# '^\*' || line =~# '^EOS$')
-      call add(res, join(words, ''))
-      let words = []
-    else
-      call add(words, line)
-    endif
-  endfor
-  return res
+  return lines
 endfunction
 
 function! s:OpenWindow(cmd)
@@ -74,8 +93,8 @@ function! s:OpenWindow(cmd)
     for i in range(1, winnr('$'))
       let height = winheight(i)
       if height > maxheight
-	let maxheight = height
-	let maxnr = i
+        let maxheight = height
+        let maxnr = i
       endif
     endfor
     if maxnr > 0
