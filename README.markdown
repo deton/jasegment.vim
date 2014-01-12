@@ -98,19 +98,20 @@ EmacsのM-f(forward-word):
 * README.markdown: このファイル
 * plugin/jasegment.vim: map定義等
 * autoload/jasegment.vim: カーソル移動関係の処理
-* autoload/tinysegmenter/func.vim: TinySegmenterの移植。単語や文節区切り処理
-* autoload/tinysegmenter/knbc_bunsetu.vim:
+* autoload/jasegment/tinysegmenter.vim: TinySegmenterの移植。
+  単語や文節区切り処理
+* autoload/jasegment/knbc_bunsetu.vim:
   KNBコーパスから文節区切りを学習させたデータ
-* autoload/tinysegmenter/wpci_bunsetu.vim:
+* autoload/jasegment/wpci_bunsetu.vim:
   Wikipediaデータの一部をCaboChaで文節区切りしたものを学習させたデータ。
   knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
-* autoload/tinysegmenter/jeita.vim: 
+* autoload/jasegment/jeita.vim: 
   TinySegmenterMakerに含まれる単語区切りデータ
-* autoload/tinysegmenter/rwcp.vim:
+* autoload/jasegment/rwcp.vim:
   TinySegmenterに含まれる単語区切りデータ
-* autoload/tinysegmenter/endhira.vim:
+* autoload/jasegment/endhira.vim:
   TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
-* autoload/tinysegmenter/nonblank.vim:
+* autoload/jasegment/nonblank.vim:
   英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
 * doc/jasegment.jax: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
@@ -221,10 +222,14 @@ https://github.com/deton/textobj-nonblankchars.vim
 
 更新履歴
 ========
-* 1.1.1 (2014-01-XXX)
+* 1.2.0 (2014-01-XXX)
+  * autoload/tinysegmenter/をautoload/jasegment/に変更。
+    tinysegmenterを使用しない区切り用ファイルをいくつか入れているので。
+    これにともない、オプション名も変更。
+    g:jasegment#endhira#splitpatとg:jasegment#nonblank#splitpat
   * doc/jasegment.txtをdoc/jasegment.jaxに名前変更。
   * Wikipediaデータの一部をCaboChaで文節区切りしたものをTinySegmenterMakerで
-    学習させたautoload/tinysegmenter/wpci_bunsetu.vimを追加。
+    学習させたautoload/jasegment/wpci_bunsetu.vimを追加。
     knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
 
 knbc_bunsetu.vim:
@@ -237,9 +242,9 @@ wpci_bunsetu.vim:
 
 * 1.1.0 (2013-05-18)
   * TinySegmenterを使わないで、ひらがなを終端とする文字列として分割する
-    autoload/tinysegmenter/endhira.vimを追加。
+    autoload/jasegment/endhira.vimを追加。
   * 英文のWORDと同様に、空白文字(全角空白含む)で区切る
-    autoload/tinysegmenter/nonblank.vimを追加(TinySegmenter不使用)。
+    autoload/jasegment/nonblank.vimを追加(TinySegmenter不使用)。
   * デフォルトの文節区切りによる移動・選択(W,E,B,aW,iW)を使いつつ、
     別の区切りによる移動・選択を行うmapも登録するための関数
     jasegment#define()を追加。

@@ -27,7 +27,7 @@ W,E,B,aW,iWを置き換えます。
 
 'g:jasegment#model'				*'g:jasegment#model'*
   文節を区切るために使うTinySegmenter用モデル名
-  (autoload/tinysegmenter/にあるファイル名から.vimを除いたもの)
+  (autoload/jasegment/にあるファイル名から.vimを除いたもの)
   省略値: 'knbc_bunsetu'
   設定例(ひらがなを終端とする文字列として分割する場合(TinySegmenter不使用)):
     let g:jasegment#model = 'endhira'
@@ -58,15 +58,15 @@ W,E,B,aW,iWを置き換えます。
     独自の区切りパターンを持つもの(endhira, nonblank)があり、
     その場合はg:jasegment#splitpatは使用されません。
     変更したい場合は、各モデルの区切りパターン
-    (g:tinysegmenter#endhira#splitpat, g:tinysegmenter#nonblank#splitpat)
+    (g:jasegment#endhira#splitpat, g:jasegment#nonblank#splitpat)
     を設定してください。
 
-'g:tinysegmenter#endhira#splitpat'	*'g:tinysegmenter#endhira#splitpat'*
+'g:jasegment#endhira#splitpat'	*'g:jasegment#endhira#splitpat'*
   区切りモデルとして、endhira.vim使用時に、
   ひらがなで終端される文字列として分割するための区切りパターン。
   省略値: '[ぁ-ん、。?!]\+\zs'
 
-'g:tinysegmenter#nonblank#splitpat'	*'g:tinysegmenter#nonblank#splitpat'*
+'g:jasegment#nonblank#splitpat'	*'g:jasegment#nonblank#splitpat'*
   区切りモデルとして、nonblank.vim使用時に、
   空白文字で分割するための区切りパターン。
   (区切りモデルは、空白文字によって区切られた各文字列に対して呼ばれるため、

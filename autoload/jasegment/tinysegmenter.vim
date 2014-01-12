@@ -1,10 +1,10 @@
 " vi:set ts=8 sts=2 sw=2 tw=0:
 scriptencoding utf-8
 
-" autoload/tinysegmenter/func.vim
+" autoload/jasegment/tinysegmenter.vim
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-02-13
+" Last Change: 2014-01-12
 "
 " TinySegmenter 0.1 -- Super compact Japanese tokenizer in Javascript
 " (c) 2008 Taku Kudo <taku@chasen.org>
@@ -46,7 +46,7 @@ function s:getctype(str)
   return 'O'
 endfunction
 
-function tinysegmenter#func#segment(model, input)
+function jasegment#tinysegmenter#segment(model, input)
   if a:input == ''
     return []
   endif

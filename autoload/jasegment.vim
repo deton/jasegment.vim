@@ -461,11 +461,11 @@ function! jasegment#SegmentCol(model_name, lnum)
     let spseg = substitute(spsegs[i], '[[:space:]　]', '', 'g')
     if spseg != ''
       if spseg =~ '[^[:graph:]]'
-	let js = tinysegmenter#{a:model_name}#segment(spseg)
+	let js = jasegment#{a:model_name}#segment(spseg)
 	" TinySegmenterで"。"の後で切ってくれないことがあるので自分で分割
 	let splitpat = g:jasegment#splitpat
-	if exists('g:tinysegmenter#{a:model_name}#splitpat')
-	  let splitpat = g:tinysegmenter#{a:model_name}#splitpat
+	if exists('g:jasegment#{a:model_name}#splitpat')
+	  let splitpat = g:jasegment#{a:model_name}#splitpat
 	endif
 	call map(js, 'split(v:val, ''' . splitpat . ''')')
 	let segs = []
