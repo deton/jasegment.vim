@@ -95,7 +95,8 @@ W,E,B,aW,iWを置き換えます。
   省略値: '-I0 -O2 -f1'
 
 'g:jasegment#cabocha#enc'       *'g:jasegment#cabocha#enc'*
-  CaboChaの入出力エンコーディング
+  CaboChaの入出力エンコーディング。CaboCha側の設定と合っていない場合、
+  'W'等を押しても全く移動しなくなる場合があります。
   省略値: &encoding
 
 'g:jasegment#splitsep'				*'g:jasegment#splitsep'*

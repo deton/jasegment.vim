@@ -21,11 +21,17 @@ if !exists('g:jasegment#cabocha#enc')
 endif
 
 function! jasegment#cabocha#segment(input)
-  if s:has_vimproc()
-    let lines = s:ExecPopen(a:input)
-  else
-    let lines = s:Exec(a:input)
-  endif
+  try
+    if s:has_vimproc()
+      let lines = s:ExecPopen(a:input)
+    else
+      let lines = s:Exec(a:input)
+    endif
+  catch
+    echom 'jasegment#cabocha#segment: ' . v:exception
+    let lines = []
+  endtry
+  "echom join(lines)
   " cabocha実行失敗?
   if empty(lines)
     return [a:input]
@@ -76,6 +82,9 @@ endfunction
 function! s:Exec(input)
   let input = s:iconv(a:input, &encoding, g:jasegment#cabocha#enc)
   let res = system(g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args, input)
+  if v:shell_error
+    throw res
+  endif
   let res = s:iconv(res, g:jasegment#cabocha#enc, &encoding)
   return split(res, '\n')
 endfunction
