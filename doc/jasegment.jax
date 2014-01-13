@@ -88,14 +88,14 @@ W,E,B,aW,iWを置き換えます。
   PATH全体を""でくくってください。
   省略値: 'cabocha'
   設定例:
-    let g:jasegment#cabocha#cmd = '"C:\Program Files\CaboCha\bin\cabocha.exe"'
+    let g:jasegment#cabocha#cmd = '"C:/Program Files/CaboCha/bin/cabocha.exe"'
 
 'g:jasegment#cabocha#args'      *'g:jasegment#cabocha#args'
   CaboChaの引数。
   省略値: '-I0 -O2 -f1'
 
 'g:jasegment#cabocha#enc'       *'g:jasegment#cabocha#enc'*
-  CaboChaとの入出力エンコーディング
+  CaboChaの入出力エンコーディング
   省略値: &encoding
 
 'g:jasegment#splitsep'				*'g:jasegment#splitsep'*
