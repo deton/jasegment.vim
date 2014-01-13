@@ -5,7 +5,7 @@ jasegment.vim - 日本語文章でのWORD移動(W,E,B)を文節単位にする�
 ====
 
 jasegment.vimは、日本語文章でのWORD移動(W,E,B)を文節単位にするスクリプトです。
-TinySegmenterを使って文節を区切っています。
+CaboChaやTinySegmenterを使って文節を区切ります。
 
 日本語文章の編集において、VimのWORD移動(W,E,B)は使いづらい機能でした。
 
@@ -33,9 +33,11 @@ TinySegmenterを使って文節を区切っています。
 
 文節区切りに関しては、以下を使っています。
 * 文節区切りは、
+  [CaboCha](http://code.google.com/p/cabocha/)
+  もしくは、
   [TinySegmenter](http://chasen.org/~taku/software/TinySegmenter/)
   をVimスクリプトに移植したものを使用。
-* 文節区切りの学習データは、
+* TinySegmenter用の文節区切りの学習データは、
   [TinySegmenterMaker](http://shogo82148.github.com/blog/2012/11/23/tinysegmentermaker/)
   を使って、
   [KNBコーパス](http://nlp.ist.i.kyoto-u.ac.jp/kuntt/#ga739fe2)
@@ -98,6 +100,7 @@ EmacsのM-f(forward-word):
 * README.markdown: このファイル
 * plugin/jasegment.vim: map定義等
 * autoload/jasegment.vim: カーソル移動関係の処理
+* autoload/jasegment/cabocha.vim: CaboChaを使って文節区切りを行うスクリプト。
 * autoload/jasegment/tinysegmenter.vim: TinySegmenterの移植。
   単語や文節区切り処理
 * autoload/jasegment/knbc_bunsetu.vim:
@@ -207,7 +210,7 @@ https://github.com/deton/textobj-nonblankchars.vim
 
 * 文節区切りが適切でない場合があります。
 
-    例えば、現状同梱している文節区切りデータでは、
+    例えば、現状同梱しているTinySegmenter用文節区切りデータでは、
     「AもしくはB」という文字列があると、「も」の後で切られてしまいます。
 
     普段使う文章で文節区切りを学習し直せば改善される可能性はあります。
@@ -223,6 +226,7 @@ https://github.com/deton/textobj-nonblankchars.vim
 更新履歴
 ========
 * 1.2.0 (2014-01-XXX)
+  * CaboChaを使って文節区切りを行うautoload/jasegment/cabocha.vimを追加。
   * autoload/tinysegmenter/をautoload/jasegment/に変更。
     tinysegmenterを使用しない区切り用ファイルをいくつか入れているので。
     これにともない、オプション名も変更。

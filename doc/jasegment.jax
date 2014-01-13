@@ -26,8 +26,18 @@ W,E,B,aW,iWを置き換えます。
 2. オプション					*jasegment-option*
 
 'g:jasegment#model'				*'g:jasegment#model'*
-  文節を区切るために使うTinySegmenter用モデル名
+  文節を区切るために使う(TinySegmenter用)モデル名。
   (autoload/jasegment/にあるファイル名から.vimを除いたもの)
+  設定可能な値は以下。
+  'cabocha': CaboChaを使って文節区切りを実行。要CaboCha。
+  'knbc_bunsetu': KNBコーパスから文節区切りを学習させたデータ。
+  'wpci_bunsetu': Wikipediaデータの一部をCaboChaで文節区切りしたものを学習
+                  させたデータ。knbc_bunsetuよりも少し細かい区切りになる傾向。
+  'jeita': TinySegmenterMakerに含まれる単語区切りデータ。
+  'rwcp': TinySegmenterに含まれる単語区切りデータ。
+  'endhira': ひらがなを終端とする文字列として分割。
+  'nonblank': 英文のWORDと同様に、空白文字(全角空白含む)で区切る。
+
   省略値: 'knbc_bunsetu'
   設定例(ひらがなを終端とする文字列として分割する場合(TinySegmenter不使用)):
     let g:jasegment#model = 'endhira'
@@ -61,17 +71,32 @@ W,E,B,aW,iWを置き換えます。
     (g:jasegment#endhira#splitpat, g:jasegment#nonblank#splitpat)
     を設定してください。
 
-'g:jasegment#endhira#splitpat'	*'g:jasegment#endhira#splitpat'*
+'g:jasegment#endhira#splitpat'  	*'g:jasegment#endhira#splitpat'*
   区切りモデルとして、endhira.vim使用時に、
   ひらがなで終端される文字列として分割するための区切りパターン。
   省略値: '[ぁ-ん、。?!]\+\zs'
 
-'g:jasegment#nonblank#splitpat'	*'g:jasegment#nonblank#splitpat'*
+'g:jasegment#nonblank#splitpat' 	*'g:jasegment#nonblank#splitpat'*
   区切りモデルとして、nonblank.vim使用時に、
   空白文字で分割するための区切りパターン。
   (区切りモデルは、空白文字によって区切られた各文字列に対して呼ばれるため、
   さらなる分割が不要なnonblank.vimでは空パターン)
   省略値: ''
+
+'g:jasegment#cabocha#cmd'  	*'g:jasegment#cabocha#cmd'*
+  CaboChaのPATH。PATHの途中にスペースを含む場合は、以下の設定例のように
+  PATH全体を""でくくってください。
+  省略値: 'cabocha'
+  設定例:
+    let g:jasegment#cabocha#cmd = '"C:\Program Files\CaboCha\bin\cabocha.exe"'
+
+'g:jasegment#cabocha#args'      *'g:jasegment#cabocha#args'
+  CaboChaの引数。
+  省略値: '-I0 -O2 -f1'
+
+'g:jasegment#cabocha#enc'       *'g:jasegment#cabocha#enc'*
+  CaboChaとの入出力エンコーディング
+  省略値: &encoding
 
 'g:jasegment#splitsep'				*'g:jasegment#splitsep'*
   |:JaSegmentSplit|で分かち書きする際の区切り文字列
@@ -125,7 +150,7 @@ jasegment#cWORD()				*jasegment#cWORD()*
 
 * 文節区切りが適切でない場合があります。
 
-  例えば、現状同梱している文節区切りデータでは、
+  例えば、現状同梱しているTinySegmenter用文節区切りデータでは、
   「AもしくはB」という文字列があると、「も」の後で切られてしまいます。
 
   普段使う文章で文節区切りを学習し直せば改善される可能性はあります。
