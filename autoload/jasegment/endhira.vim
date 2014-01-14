@@ -6,14 +6,13 @@ scriptencoding utf-8
 " 「(漢字|カタカナ|記号|英数字)+ひらがな」を1つの文節とみなす。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-12
+" Last Change: 2014-01-14
 
-if !exists('g:jasegment#endhira#splitpat')
+if !exists('g:jasegment#endhira#splitpat0')
   " ひらがなで終端される文字列として分割
-  let g:jasegment#endhira#splitpat = '[ぁ-ん、。?!]\+\zs'
+  let g:jasegment#endhira#splitpat0 = '[ぁ-ん、。?!]\+\zs'
 endif
 
 function! jasegment#endhira#segment(input)
-  " autoload/jasegment.vim内でg:jasegment#endhira#splitpatで区切られる
-  return [a:input]
+  return split(a:input, g:jasegment#endhira#splitpat0)
 endfunction
