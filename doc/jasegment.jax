@@ -29,13 +29,17 @@ W,E,B,aW,iWを置き換えます。
   文節を区切るために使う(TinySegmenter用)モデル名。
   (autoload/jasegment/にあるファイル名から.vimを除いたもの)
   設定可能な値は以下。
-  'cabocha': CaboChaを使って文節区切りを実行。要CaboCha。
+  'cabocha': CaboChaを使って文節区切りを実行。要CaboCha、MeCab。
+             vimprocが利用可能な場合は、vimproc#popen2()を使って1回cabochaを
+             起動して使い続けます。そうでなければ、行移動後最初の'W'等の操作の
+             たびにcabochaを起動・終了します。
   'knbc_bunsetu': KNBコーパスから文節区切りを学習させたデータ。
   'wpci_bunsetu': Wikipediaデータの一部をCaboChaで文節区切りしたものを学習
                   させたデータ。knbc_bunsetuよりも少し細かい区切りになる傾向。
   'jeita': TinySegmenterMakerに含まれる単語区切りデータ。
   'rwcp': TinySegmenterに含まれる単語区切りデータ。
   'endhira': ひらがなを終端とする文字列として分割。
+  'endhira_mbb': 'endhira'の分割に加え、ASCII文字との境界でも分割。
   'nonblank': 英文のWORDと同様に、空白文字(全角空白含む)で区切る。
 
   省略値: 'knbc_bunsetu'
@@ -64,17 +68,21 @@ W,E,B,aW,iWを置き換えます。
   設定例(全角の？！の後で文節区切りを入れたい場合):
     let g:jasegment#splitpat = '[^[:space:]　][?!、。？！]\+\zs'
   注:
-    区切りモデルによっては、
-    独自の区切りパターンを持つもの(endhira, nonblank)があり、
+    区切りモデルによっては、独自の区切りパターンを持つもの(nonblank)があり、
     その場合はg:jasegment#splitpatは使用されません。
-    変更したい場合は、各モデルの区切りパターン
-    (g:jasegment#endhira#splitpat, g:jasegment#nonblank#splitpat)
+    変更したい場合は、各モデルの区切りパターン(g:jasegment#nonblank#splitpat)
     を設定してください。
 
-'g:jasegment#endhira#splitpat'  	*'g:jasegment#endhira#splitpat'*
+'g:jasegment#endhira#splitpat0'  	*'g:jasegment#endhira#splitpat0'*
   区切りモデルとして、endhira.vim使用時に、
   ひらがなで終端される文字列として分割するための区切りパターン。
   省略値: '[ぁ-ん、。?!]\+\zs'
+
+'g:jasegment#endhira_mbb#splitpat0'  	*'g:jasegment#endhira_mbb#splitpat0'*
+  区切りモデルとして、endhira_mbb.vim使用時に、
+  ひらがなで終端される文字列として分割もしくは、ASCII文字との境界で分割する
+  ための区切りパターン。
+  省略値: '[ぁ-ん、。?!]\+\zs\|[\x01-\x7f]\zs[^\x01-\x7f]\@=\|[^\x01-\x7f]\zs[\x01-\x7f]\@='
 
 'g:jasegment#nonblank#splitpat' 	*'g:jasegment#nonblank#splitpat'*
   区切りモデルとして、nonblank.vim使用時に、
@@ -95,9 +103,17 @@ W,E,B,aW,iWを置き換えます。
   省略値: '-I0 -O2 -f1'
 
 'g:jasegment#cabocha#enc'       *'g:jasegment#cabocha#enc'*
-  CaboChaの入出力エンコーディング。CaboCha側の設定と合っていない場合、
-  'W'等を押しても全く移動しなくなる場合があります。
+  CaboChaの入出力エンコーディング。想定される値: 'utf-8', 'cp932', 'euc-jp'。
+  cabocha.vimは、Vimの|iconv()|を使って、Vim側の&encodingと、CaboChaとの
+  入出力データ間の変換を行います。
+    Vim(&encoding) <---> cabocha.vim <--'g:jasegment#cabocha#enc'--> CaboCha
+  なお、CaboCha側の設定と合っていない場合、'W'等を押しても全く移動しなくなる
+  場合があります。
   省略値: &encoding
+  設定例1(Vimの&encodingが'cp932'や'euc-jp'で、CaboCha側がUTF-8の場合):
+    let g:jasegment#cabocha#enc = 'utf-8'
+  設定例2(Vimの&encodingが'utf-8'で、CaboCha側がSHIFT-JISの場合):
+    let g:jasegment#cabocha#enc = 'cp932'
 
 'g:jasegment#splitsep'				*'g:jasegment#splitsep'*
   |:JaSegmentSplit|で分かち書きする際の区切り文字列
