@@ -6,7 +6,13 @@ scriptencoding utf-8
 " nvi-m17nの区切り処理の移植。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-15
+" Last Change: 2014-01-16
+
+if !exists('g:jasegment#nvi_m17n#splitpat')
+  " nvi_m17n.vimで区切った後、jasegment.vim内でg:jasegment#splitpatで、
+  " さらに「?!」等で区切られないようにするため空にしておく
+  let g:jasegment#nvi_m17n#splitpat = ''
+endif
 
 let s:chclass_kana = 'ヽヾゝゞー〜'
 let s:patterns = {'[\x00-\x7f]':-1,'[〃仝々〆]':20,'[ぁ-ん]':2,'[ァ-ヴーｱ-ﾝﾞｰ]':10,'[０-９ａ-ｚＡ-Ｚ]':5}
