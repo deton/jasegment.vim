@@ -14,7 +14,26 @@ if !exists('g:jasegment#nvi_m17n#splitpat')
   let g:jasegment#nvi_m17n#splitpat = ''
 endif
 
-let s:chclass_kana = 'ヽヾゝゞー〜'
+function! s:wave_dash()
+  " &enc=cp932の場合、U+301Cが'?'になるが、'?'は入れたくないので
+  " for euc-jp, shift_jis. U+301C WAVE DASH
+  let c = iconv("\xe3\x80\x9c", 'utf-8', &encoding)
+  if c == '?'
+    return ''
+  endif
+  return c
+endfunction
+function! s:fullwidth_tilde()
+  " for cp932. U+FF5E FULLWIDTH TILDE
+  let c = iconv("\xef\xbd\x9e", 'utf-8', &encoding)
+  if c == '?'
+    return ''
+  endif
+  return c
+endfunction
+
+let s:chclass_kana = 'ヽヾゝゞー' . s:wave_dash() . s:fullwidth_tilde()
+
 let s:patterns = {'[\x00-\x7f]':-1,'[〃仝々〆]':20,'[ぁ-ん]':2,'[ァ-ヴーｱ-ﾝﾞｰ]':10,'[０-９ａ-ｚＡ-Ｚ]':5}
 
 function! jasegment#nvi_m17n#segment(input)
