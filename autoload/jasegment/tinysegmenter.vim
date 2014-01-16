@@ -4,7 +4,7 @@ scriptencoding utf-8
 " autoload/jasegment/tinysegmenter.vim
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-12
+" Last Change: 2014-01-16
 "
 " TinySegmenter 0.1 -- Super compact Japanese tokenizer in Javascript
 " (c) 2008 Taku Kudo <taku@chasen.org>
@@ -24,10 +24,10 @@ let s:patterns = {
 \ }
 " \ '[一-龠々〆ヵヶ]':'H',
 
-" for &encoding == 'utf-8'
-let s:kanjimin = char2nr('一')
-let s:kanjimax = char2nr('龠')
-if &encoding == 'euc-jp' || &encoding == 'cp932'
+if &encoding == 'utf-8'
+  let s:kanjimin = char2nr('一')
+  let s:kanjimax = char2nr('龠')
+else " 'cp932', 'euc-jp'
   " TODO: support JIS X 0213
   let s:kanjimin = char2nr('亜')
   let s:kanjimax = char2nr('熙')
