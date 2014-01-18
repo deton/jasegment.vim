@@ -28,7 +28,7 @@ call s:add_if_iconvok(s:chclass_kana, "\xe3\x80\x9c")
 " U+FF5E FULLWIDTH TILDE (for cp932)
 call s:add_if_iconvok(s:chclass_kana, "\xef\xbd\x9e")
 
-let s:patterns = {'[\x00-\x7f]':-1,'[〃仝々〆]':20,'[ぁ-ん]':2,'[ァ-ヶ]':10,'[０-９ａ-ｚＡ-Ｚα-ωΑ-Ω]':5}
+let s:patterns = {'[\x00-\x7f]':-1,'[ぁ-ん]':2,'[ァ-ヶ]':10,'[〃仝々〆]':20,'[０-９ａ-ｚＡ-Ｚα-ωΑ-Ω]':5,'[｡-ﾟ]':-2}
 " cf. Util::GetScriptType() in base/util.cc of mozc
 let s:ucskanji = [[0x3400,0x4DBF],[0x4E00,0x9FFF],[0xF900,0xFAFF],[0x20000,0x2A6DF],[0x2A700,0x2B73F],[0x2B740,0x2B81F],[0x2F800,0x2FA1F]]
 let s:start_kanji = char2nr('亜')
@@ -58,12 +58,14 @@ function! s:Wordbound(oldchclass, curchclass)
   if a:oldchclass == 0
     return 0
   endif
-  " ASCIIとマルチバイト文字列境界?
-  if a:oldchclass < 0 && a:curchclass > 0
-    return 1
-  endif
-  if a:oldchclass > 0 && a:curchclass < 0
-    return 1
+  " if they are in different character set, we've hit word boundary.
+  " ASCII(-1), JISX0201(-2), JISX0208/0213(>=0)
+  if a:oldchclass < 0 || a:curchclass < 0
+    if a:oldchclass != a:curchclass
+      return 1
+    else
+      return 0
+    endif
   endif
   " if next char is stronger, we've hit word boundary.
   if a:oldchclass < a:curchclass
