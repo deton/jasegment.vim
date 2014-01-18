@@ -36,16 +36,7 @@ call s:add_if_iconvok(s:kigou, "\xe2\x80\x96")
 " U+2225 PARALLEL TO (for cp932)
 call s:add_if_iconvok(s:kigou, "\xe2\x88\xa5")
 
-" XXX: 半角カナ文字を直接書くと&enc=euc-jp環境でutf-8からの変換に失敗するので
-if &encoding == 'utf-8'
-  let s:hankana = '[\uFF61-\uFF9F]'
-elseif &encoding == 'cp932'
-  let s:hankana = '[\xA1-\xDF]'
-elseif &encoding == 'euc-jp'
-  let s:hankana = '[\u8EA1-\u8EDF]'
-else
-  let s:hankana = '[]'
-endif
+let s:hankana = '[｡-ﾟ]'
 
 function! jasegment#jvim3#segment(input)
   let res = []
