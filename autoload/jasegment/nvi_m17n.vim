@@ -14,25 +14,20 @@ if !exists('g:jasegment#nvi_m17n#splitpat')
   let g:jasegment#nvi_m17n#splitpat = ''
 endif
 
-function! s:add_wave_dash(ls)
-  " &enc=cp932の場合、U+301Cが'?'になるが、'?'は入れたくないので
-  " for euc-jp, shift_jis. U+301C WAVE DASH
-  let c = iconv("\xe3\x80\x9c", 'utf-8', &encoding)
+function! s:add_if_iconvok(ls, seq)
+  let c = iconv(a:seq, 'utf-8', &encoding)
   if c != '?'
-    call add(a:ls, c)
-  endif
-endfunction
-function! s:add_fullwidth_tilde(ls)
-  " for cp932. U+FF5E FULLWIDTH TILDE
-  let c = iconv("\xef\xbd\x9e", 'utf-8', &encoding)
-  if c == '?'
     call add(a:ls, c)
   endif
 endfunction
 
 let s:chclass_kana = ['ヽ','ヾ','ゝ','ゞ','ー']
-call s:add_wave_dash(s:chclass_kana)
-call s:add_fullwidth_tilde(s:chclass_kana)
+" &enc=cp932の場合、U+301Cが'?'になるが、'?'は入れたくない
+" U+301C WAVE DASH (for euc-jp, shift_jis)
+call s:add_if_iconvok(s:chclass_kana, "\xe3\x80\x9c")
+" U+FF5E FULLWIDTH TILDE (for cp932)
+call s:add_if_iconvok(s:chclass_kana, "\xef\xbd\x9e")
+
 let s:patterns = {'[\x00-\x7f]':-1,'[〃仝々〆]':20,'[ぁ-ん]':2,'[ァ-ヶ]':10,'[０-９ａ-ｚＡ-Ｚα-ωΑ-Ω]':5}
 " cf. Util::GetScriptType() in base/util.cc of mozc
 let s:ucskanji = [[0x3400,0x4DBF],[0x4E00,0x9FFF],[0xF900,0xFAFF],[0x20000,0x2A6DF],[0x2A700,0x2B73F],[0x2B740,0x2B81F],[0x2F800,0x2FA1F]]
@@ -80,10 +75,10 @@ endfunction
 function! s:chclass(ch, oldchclass)
   " stridx()だと、&enc=cp932で2バイト目に'U'等がマッチする
   if index(s:chclass_kana, a:ch) >= 0
-    if a:oldchclass == 10
-      return 10 " katakana
-    else
+    if a:oldchclass == 2
       return 2 " hiragana
+    else
+      return 10 " katakana
     endif
   endif
 
