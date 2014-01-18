@@ -32,7 +32,7 @@ function! s:fullwidth_tilde()
   return c
 endfunction
 
-let s:chclass_kana = 'ヽヾゝゞー' . s:wave_dash() . s:fullwidth_tilde()
+let s:chclass_kana = '[ヽヾゝゞー' . s:wave_dash() . s:fullwidth_tilde() . ']'
 let s:patterns = {'[\x00-\x7f]':-1,'[〃仝々〆]':20,'[ぁ-ん]':2,'[ァ-ヶ]':10,'[０-９ａ-ｚＡ-Ｚα-ωΑ-Ω]':5}
 " cf. Util::GetScriptType() in base/util.cc of mozc
 let s:ucskanji = [[0x3400,0x4DBF],[0x4E00,0x9FFF],[0xF900,0xFAFF],[0x20000,0x2A6DF],[0x2A700,0x2B73F],[0x2B740,0x2B81F],[0x2F800,0x2FA1F]]
@@ -78,7 +78,7 @@ function! s:Wordbound(oldchclass, curchclass)
 endfunction
 
 function! s:chclass(ch, oldchclass)
-  if stridx(s:chclass_kana, a:ch) >= 0
+  if match(a:ch, s:chclass_kana) >= 0
     if a:oldchclass == 2
       return 2 " hiragana
     else
