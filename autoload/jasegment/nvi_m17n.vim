@@ -16,7 +16,7 @@ endif
 
 function! s:add_if_iconvok(ls, seq)
   let c = iconv(a:seq, 'utf-8', &encoding)
-  if c != '?'
+  if c != '' && c !~ '^?\+$'
     call add(a:ls, c)
   endif
 endfunction

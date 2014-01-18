@@ -116,8 +116,8 @@ EmacsのM-f(forward-word):
   TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
 * autoload/jasegment/endhira_mbb.vim:
   endhira.vimの分割に加え、ASCII文字との境界でも分割するスクリプト
-* autoload/jasegment/nvi_m17n.vim:
-  nvi-m17nと同様の区切りを行うスクリプト
+* autoload/jasegment/nvi_m17n.vim: nvi-m17nと同様の区切りを行うスクリプト
+* autoload/jasegment/jvim3.vim: jvim3と同様の区切りを行うスクリプト
 * autoload/jasegment/nonblank.vim:
   英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
 * doc/jasegment.jax: ドキュメント
@@ -236,6 +236,7 @@ https://github.com/deton/textobj-nonblankchars.vim
     (nvi-m17nと似た区切りができるように。ただし「漢字列カタカナ漢字列」に対し
     2番目の漢字列で分割されないなどの違いあり)
   * nvi-m17nと同様の区切りを行うautoload/jasegment/nvi_m17n.vimを追加。
+  * jvim3同様の区切りを行うautoload/jasegment/jvim3.vimを追加。
   * endhira.vimで、「、。」の前後がひらがなの場合に分割されないバグ修正
   * autoload/tinysegmenter/をautoload/jasegment/に変更。
     tinysegmenterを使用しない区切り用ファイルをいくつか入れているので。

@@ -41,6 +41,7 @@ W,E,B,aW,iWを置き換えます。
   'endhira': ひらがなを終端とする文字列として分割。
   'endhira_mbb': 'endhira'の分割に加え、ASCII文字との境界でも分割。
   'nvi_m17n': nvi-m17nと同様の区切り。
+  'jvim3': jvim3と同様の区切り。
   'nonblank': 英文のWORDと同様に、空白文字(全角空白含む)で区切る。
 
   省略値: 'knbc_bunsetu'
