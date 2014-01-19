@@ -44,6 +44,7 @@ W,E,B,aW,iWを置き換えます。
   'nvi_m17n': nvi-m17nと同様の区切り。
   'jvim3': jvim3と同様の区切り。
   'mbboundary': ASCII文字とマルチバイト文字の境界で区切る。
+  'kutoten': 句読点を終端とする文字列として分割。
   'nonblank': 英文のWORDと同様に、空白文字(全角空白含む)で区切る。
 
   省略値: 'knbc_bunsetu'
@@ -87,6 +88,11 @@ W,E,B,aW,iWを置き換えます。
   ひらがなで終端される文字列として分割もしくは、ASCII文字との境界で分割する
   ための区切りパターン。
   省略値: '[ぁ-ん、。?!]\+\zs\|[\x01-\x7f]\zs[^\x01-\x7f]\@=\|[^\x01-\x7f]\zs[\x01-\x7f]\@='
+
+'g:jasegment#kutoten#splitpat0'  	*'g:jasegment#kutoten#splitpat0'*
+  区切りモデルとして、kutoten.vim使用時に、
+  句読点で終端される文字列として分割するための区切りパターン。
+  省略値: '[、。]\+\zs'
 
 'g:jasegment#nonblank#splitpat' 	*'g:jasegment#nonblank#splitpat'*
   区切りモデルとして、nonblank.vim使用時に、

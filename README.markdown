@@ -117,6 +117,7 @@ EmacsのM-f(forward-word):
  * nvi_m17n.vim: nvi-m17nと同様の区切りを行うスクリプト
  * jvim3.vim: jvim3と同様の区切りを行うスクリプト
  * mbboundary.vim: ASCII文字とマルチバイト文字の境界で区切る
+ * kutoten.vim: 句読点を終端とする文字列として分割
  * nonblank.vim:
    英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
 * doc/jasegment.jax: ドキュメント
@@ -238,6 +239,7 @@ https://github.com/deton/textobj-nonblankchars.vim
     (nvi-m17nと似た区切りができるように。ただし「漢字列カタカナ漢字列」に対し
     2番目の漢字列で分割されないなどの違いあり)
   * ASCII文字とマルチバイト文字の境界で区切るmbboundary.vimを追加。
+  * 句読点を終端とする文字列として分割するkutoten.vimを追加。
   * endhira.vimで、「、。」の前後がひらがなの場合に分割されないバグ修正
   * autoload/tinysegmenter/をautoload/jasegment/に変更。
     tinysegmenterを使用しない区切り用ファイルをいくつか入れているので。
