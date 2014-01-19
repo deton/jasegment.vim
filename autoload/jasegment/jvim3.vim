@@ -6,7 +6,7 @@ scriptencoding utf-8
 " jvim3の区切り処理の移植: ASCII文字との境界と、記号で区切る
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-18
+" Last Change: 2014-01-19
 
 if !exists('g:jasegment#jvim3#splitpat')
   " jvim3.vimで区切った後、jasegment.vim内でg:jasegment#splitpatで、
@@ -75,7 +75,7 @@ function! s:chclass(ch, oldchclass)
   if index(s:kigou, a:ch) >= 0
     return 7 " kigou
   endif
-  if match(a:ch, s:hankana) >= 0
+  if a:ch =~# s:hankana
     return 9 " 1byte kana
   endif
   return 4 " hira

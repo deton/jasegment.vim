@@ -6,7 +6,7 @@ scriptencoding utf-8
 " nvi-m17nの区切り処理の移植。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-18
+" Last Change: 2014-01-19
 
 if !exists('g:jasegment#nvi_m17n#splitpat')
   " nvi_m17n.vimで区切った後、jasegment.vim内でg:jasegment#splitpatで、
@@ -85,7 +85,7 @@ function! s:chclass(ch, oldchclass)
   endif
 
   for [pat, value] in items(s:patterns)
-    if match(a:ch, pat) >= 0
+    if a:ch =~# pat
       return value
     endif
   endfor

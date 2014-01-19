@@ -4,7 +4,7 @@ scriptencoding utf-8
 " autoload/jasegment/tinysegmenter.vim
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-16
+" Last Change: 2014-01-19
 "
 " TinySegmenter 0.1 -- Super compact Japanese tokenizer in Javascript
 " (c) 2008 Taku Kudo <taku@chasen.org>
@@ -35,7 +35,7 @@ endif
 
 function s:getctype(str)
   for [pat, value] in items(s:patterns)
-    if match(a:str, pat) >= 0
+    if a:str =~# pat
       return value
     endif
   endfor
