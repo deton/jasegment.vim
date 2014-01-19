@@ -10,6 +10,9 @@ scriptencoding utf-8
 if !exists('g:jasegment#cabocha#cmd')
   let g:jasegment#cabocha#cmd = 'cabocha'
 endif
+if has('win32') || has('win64')
+  let g:jasegment#cabocha#cmd = substitute(g:jasegment#cabocha#cmd, '\\', '/', 'g')
+endif
 
 if !exists('g:jasegment#cabocha#args')
   let g:jasegment#cabocha#args = '-I0 -O2 -f1'

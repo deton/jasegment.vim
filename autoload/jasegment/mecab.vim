@@ -10,6 +10,9 @@ scriptencoding utf-8
 if !exists('g:jasegment#mecab#cmd')
   let g:jasegment#mecab#cmd = 'mecab'
 endif
+if has('win32') || has('win64')
+  let g:jasegment#mecab#cmd = substitute(g:jasegment#mecab#cmd, '\\', '/', 'g')
+endif
 
 if !exists('g:jasegment#mecab#args')
   let g:jasegment#mecab#args = '-Owakati'
