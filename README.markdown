@@ -100,26 +100,24 @@ EmacsのM-f(forward-word):
 * README.markdown: このファイル
 * plugin/jasegment.vim: map定義等
 * autoload/jasegment.vim: カーソル移動関係の処理
-* autoload/jasegment/cabocha.vim: CaboChaを使って文節区切りを行うスクリプト。
-* autoload/jasegment/tinysegmenter.vim: TinySegmenterの移植。
-  単語や文節区切り処理
-* autoload/jasegment/knbc_bunsetu.vim:
-  KNBコーパスから文節区切りを学習させたデータ
-* autoload/jasegment/wpci_bunsetu.vim:
-  Wikipediaデータの一部をCaboChaで文節区切りしたものを学習させたデータ。
-  knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
-* autoload/jasegment/jeita.vim: 
-  TinySegmenterMakerに含まれる単語区切りデータ
-* autoload/jasegment/rwcp.vim:
-  TinySegmenterに含まれる単語区切りデータ
-* autoload/jasegment/endhira.vim:
-  TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
-* autoload/jasegment/endhira_mbb.vim:
-  endhira.vimの分割に加え、ASCII文字との境界でも分割するスクリプト
-* autoload/jasegment/nvi_m17n.vim: nvi-m17nと同様の区切りを行うスクリプト
-* autoload/jasegment/jvim3.vim: jvim3と同様の区切りを行うスクリプト
-* autoload/jasegment/nonblank.vim:
-  英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
+* autoload/jasegment/
+ * cabocha.vim: CaboChaを使って文節区切りを行うスクリプト。
+ * mecab.vim: MeCabを使って単語区切りを行うスクリプト。
+ * tinysegmenter.vim: TinySegmenterの移植。単語や文節区切り処理
+ * knbc_bunsetu.vim: KNBコーパスから文節区切りを学習させたデータ
+ * wpci_bunsetu.vim:
+   Wikipediaデータの一部をCaboChaで文節区切りしたものを学習させたデータ。
+   knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
+ * jeita.vim: TinySegmenterMakerに含まれる単語区切りデータ
+ * rwcp.vim: TinySegmenterに含まれる単語区切りデータ
+ * endhira.vim:
+   TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
+ * endhira_mbb.vim:
+   endhira.vimの分割に加え、ASCII文字との境界でも分割するスクリプト
+ * nvi_m17n.vim: nvi-m17nと同様の区切りを行うスクリプト
+ * jvim3.vim: jvim3と同様の区切りを行うスクリプト
+ * nonblank.vim:
+   英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
 * doc/jasegment.jax: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
   TinySegmenterMakerモデルファイル(再学習用)
@@ -230,13 +228,14 @@ https://github.com/deton/textobj-nonblankchars.vim
 更新履歴
 ========
 * 1.2.0 (2014-01-XXX)
-  * CaboChaを使って文節区切りを行うautoload/jasegment/cabocha.vimを追加。
+  * CaboChaを使って文節区切りを行うcabocha.vimを追加。
+  * MeCabを使って単語区切りを行うmecab.vimを追加。
+  * nvi-m17nと同様の区切りを行うnvi_m17n.vimを追加。
+  * jvim3同様の区切りを行うjvim3.vimを追加。
   * ひらがなを終端とする文字列として分割し、さらにASCII文字との境界でも分割する
-    autoload/jasegment/endhira_mbb.vimを追加。
+    endhira_mbb.vimを追加。
     (nvi-m17nと似た区切りができるように。ただし「漢字列カタカナ漢字列」に対し
     2番目の漢字列で分割されないなどの違いあり)
-  * nvi-m17nと同様の区切りを行うautoload/jasegment/nvi_m17n.vimを追加。
-  * jvim3同様の区切りを行うautoload/jasegment/jvim3.vimを追加。
   * endhira.vimで、「、。」の前後がひらがなの場合に分割されないバグ修正
   * autoload/tinysegmenter/をautoload/jasegment/に変更。
     tinysegmenterを使用しない区切り用ファイルをいくつか入れているので。
@@ -244,7 +243,7 @@ https://github.com/deton/textobj-nonblankchars.vim
     g:jasegment#endhira#splitpat0とg:jasegment#nonblank#splitpat
   * doc/jasegment.txtをdoc/jasegment.jaxに名前変更。
   * Wikipediaデータの一部をCaboChaで文節区切りしたものをTinySegmenterMakerで
-    学習させたautoload/jasegment/wpci_bunsetu.vimを追加。
+    学習させたwpci_bunsetu.vimを追加。
     knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
 
 knbc_bunsetu.vim:

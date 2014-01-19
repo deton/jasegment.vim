@@ -33,6 +33,7 @@ W,E,B,aW,iWを置き換えます。
              vimprocが利用可能な場合は、vimproc#popen2()を使って1回cabochaを
              起動して使い続けます。そうでなければ、行移動後最初の'W'等の操作の
              たびにcabochaを起動・終了します。
+  'mecab': MeCabを使って単語区切りを実行。要MeCab。vimprocに関しては同上。
   'knbc_bunsetu': KNBコーパスから文節区切りを学習させたデータ。
   'wpci_bunsetu': Wikipediaデータの一部をCaboChaで文節区切りしたものを学習
                   させたデータ。knbc_bunsetuよりも少し細かい区切りになる傾向。
@@ -116,6 +117,21 @@ W,E,B,aW,iWを置き換えます。
     let g:jasegment#cabocha#enc = 'utf-8'
   設定例2(Vimの&encodingが'utf-8'で、CaboCha側がSHIFT-JISの場合):
     let g:jasegment#cabocha#enc = 'cp932'
+
+'g:jasegment#mecab#cmd'  	*'g:jasegment#mecab#cmd'*
+  MeCabのPATH。PATHの途中にスペースを含む場合は、以下の設定例のように
+  PATH全体を""でくくってください。
+  省略値: 'mecab'
+  設定例:
+    let g:jasegment#mecab#cmd = '"C:/Program Files/MeCab/bin/mecab.exe"'
+
+'g:jasegment#mecab#args'      *'g:jasegment#mecab#args'
+  MeCabの引数。
+  省略値: '-Owakati'
+
+'g:jasegment#mecab#enc'       *'g:jasegment#mecab#enc'*
+  MeCabの入出力エンコーディング。|'g:jasegment#mecab#enc'|と同様。
+  省略値: &encoding
 
 'g:jasegment#splitsep'				*'g:jasegment#splitsep'*
   |:JaSegmentSplit|で分かち書きする際の区切り文字列
