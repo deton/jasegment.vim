@@ -31,17 +31,61 @@ CaboChaやTinySegmenterを使って文節を区切ります。
 
 ![下線表示スクリーンショット](http://deton.github.com/jasegment.vim/jasegment.png)
 
-文節区切りに関しては、以下を使っています。
-* 文節区切りは、
-  [CaboCha](http://code.google.com/p/cabocha/)
-  もしくは、
-  [TinySegmenter](http://chasen.org/~taku/software/TinySegmenter/)
+文節区切り方法は、以下から選択可能です。
+
+* 外部プログラム使用
+ * 'cabocha': [CaboCha](http://code.google.com/p/cabocha/)を使って文節区切り
+
+    区切りの | 違いは | 「最大データ数」など、 | カタカナ・記号・ASCII境界あたりでしか | わからない | ことが | あります。
+
+ * ('mecab': 単語区切り: [MeCab](http://mecab.sourceforge.net/)を使用)
+* [TinySegmenter](http://chasen.org/~taku/software/TinySegmenter/)
   をVimスクリプトに移植したものを使用。
-* TinySegmenter用の文節区切りの学習データは、
+  TinySegmenter用区切りデータは、
   [TinySegmenterMaker](http://shogo82148.github.com/blog/2012/11/23/tinysegmentermaker/)
-  を使って、
-  [KNBコーパス](http://nlp.ist.i.kyoto-u.ac.jp/kuntt/#ga739fe2)
-  から、文節区切りを学習させたもの。
+  を使って学習。
+ * 'knbc_bunsetu'(デフォルト):
+   [KNBコーパス](http://nlp.ist.i.kyoto-u.ac.jp/kuntt/#ga739fe2)から、
+   文節区切りを学習させたデータ。
+
+    区切りの | 違いは | 「最大データ数」など、 | カタカナ・記号・ASCII境界あたりでしかわからないことが | あります。
+
+ * 'wpci_bunsetu':
+   Wikipediaデータの一部をCaboChaで文節区切りしたものを学習させたデータ。
+
+    区切りの | 違いは | 「最大データ数」など、 | カタカナ・記号・ASCII境界あたりでしかわから | ない | ことが | あります。
+
+ * ('jeita': 単語区切り: TinySegmenterMakerに含まれる単語区切りデータ)
+ * ('rwcp': 単語区切り: TinySegmenterに含まれる単語区切りデータ)
+* Vimスクリプトで文字種をもとに区切り
+ * 'endhira': ひらがなを終端とする文字列として分割
+
+    区切りの | 違いは | 「最大データ数」など、 | カタカナ・記号・ASCII境界あたりでしかわからないことがあります。
+
+ * 'endhira_mbb': 'endhira'の分割に加え、ASCII文字との境界でも分割
+
+    区切りの | 違いは | 「最大データ数」など、 | カタカナ・記号・ | ASCII | 境界あたりでしかわからないことがあります。
+
+ * 'nvi_m17n': nvi-m17nと同様の区切り
+
+    区切りの | 違いは「 | 最大データ | 数」 | など、 | カタカナ・ | 記号・ | ASCII | 境界あたりでしかわからないことがあります。
+
+ * 'jvim3': jvim3と同様の区切り
+
+    区切りの違いは | 「 | 最大データ数 | 」 | など | 、 | カタカナ | ・ | 記号 | ・ | ASCII | 境界あたりでしかわからないことがあります | 。
+
+ * 'mbboundary': ASCII文字とマルチバイト文字の境界で区切る
+
+    区切りの違いは「最大データ数」など、カタカナ・記号・ | ASCII | 境界あたりでしかわからないことがあります。
+
+ * 'kutoten': 句読点を終端とする文字列として分割
+
+    区切りの違いは「最大データ数」など、 | カタカナ・記号・ASCII境界あたりでしかわからないことがあります。
+
+ * 'nonblank': 英文のWORDと同様に、空白文字(全角空白含む)で区切る
+
+    区切りの違いは「最大データ数」など、カタカナ・記号・ASCII境界あたりでしかわからないことがあります。
+
 
 区切り例
 --------
@@ -88,7 +132,7 @@ jvim3のWORD:
 
 nvi-m17nのWORD:
 
-    Vim | は | 最もたくさんの | コンピュータ | /OS | で | 利用できる | テキストエディタです。 | 
+    Vim | は | 最もたくさんの | コンピュータ | /OS | で | 利用できる | テキストエディタです。
 
 EmacsのM-f(forward-word):
 
@@ -110,16 +154,14 @@ EmacsのM-f(forward-word):
    knbc_bunsetu.vimよりも少し細かい区切りになる傾向。
  * jeita.vim: TinySegmenterMakerに含まれる単語区切りデータ
  * rwcp.vim: TinySegmenterに含まれる単語区切りデータ
- * endhira.vim:
-   TinySegmenterを使わず、ひらがなを終端とする文字列として分割するスクリプト
+ * endhira.vim: ひらがなを終端とする文字列として分割するスクリプト
  * endhira_mbb.vim:
    endhira.vimの分割に加え、ASCII文字との境界でも分割するスクリプト
  * nvi_m17n.vim: nvi-m17nと同様の区切りを行うスクリプト
  * jvim3.vim: jvim3と同様の区切りを行うスクリプト
  * mbboundary.vim: ASCII文字とマルチバイト文字の境界で区切る
  * kutoten.vim: 句読点を終端とする文字列として分割
- * nonblank.vim:
-   英文のWORDと同様に、空白文字(全角空白含む)で区切る(TinySegmenter不使用)
+ * nonblank.vim: 英文のWORDと同様に、空白文字(全角空白含む)で区切る
 * doc/jasegment.jax: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
   TinySegmenterMakerモデルファイル(再学習用)
@@ -241,6 +283,7 @@ https://github.com/deton/textobj-nonblankchars.vim
   * ASCII文字とマルチバイト文字の境界で区切るmbboundary.vimを追加。
   * 句読点を終端とする文字列として分割するkutoten.vimを追加。
   * endhira.vimで、「、。」の前後がひらがなの場合に分割されないバグ修正
+  * nonblank.vimで、空白が無いのに「デ」の後などで分割されるバグ修正
   * autoload/tinysegmenter/をautoload/jasegment/に変更。
     tinysegmenterを使用しない区切り用ファイルをいくつか入れているので。
     これにともない、オプション名も変更。
