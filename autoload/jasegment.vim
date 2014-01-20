@@ -467,11 +467,15 @@ function! jasegment#SegmentCol(model_name, lnum)
 	if exists('g:jasegment#{a:model_name}#splitpat')
 	  let splitpat = g:jasegment#{a:model_name}#splitpat
 	endif
-	call map(js, 'split(v:val, '' . splitpat . '')')
-	let segs = []
-	for ar in js
-	  call extend(segs, ar)
-	endfor
+	if splitpat == ''
+	  let segs = js
+	else
+	  call map(js, 'split(v:val, ''' . splitpat . ''')')
+	  let segs = []
+	  for ar in js
+	    call extend(segs, ar)
+	  endfor
+	endif
       else
 	let segs = [spseg]
       endif

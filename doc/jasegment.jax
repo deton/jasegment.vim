@@ -73,9 +73,9 @@ W,E,B,aW,iWを置き換えます。
   設定例(全角の？！の後で文節区切りを入れたい場合):
     let g:jasegment#splitpat = '[^[:space:]　][?!、。？！]\+\zs'
   注:
-    区切りモデルによっては、独自の区切りパターンを持つもの(nonblank)があり、
+    区切りモデルによっては、独自の区切りパターンを持つもの(kutoten)があり、
     その場合はg:jasegment#splitpatは使用されません。
-    変更したい場合は、各モデルの区切りパターン(g:jasegment#nonblank#splitpat)
+    変更したい場合は、各モデルの区切りパターン(g:jasegment#kutoten#splitpat)
     を設定してください。
 
 'g:jasegment#endhira#splitpat0'  	*'g:jasegment#endhira#splitpat0'*
@@ -89,17 +89,10 @@ W,E,B,aW,iWを置き換えます。
   ための区切りパターン。
   省略値: '[ぁ-ん、。?!]\+\zs\|[\x01-\x7f]\zs[^\x01-\x7f]\@=\|[^\x01-\x7f]\zs[\x01-\x7f]\@='
 
-'g:jasegment#kutoten#splitpat0'  	*'g:jasegment#kutoten#splitpat0'*
+'g:jasegment#kutoten#splitpat'  	*'g:jasegment#kutoten#splitpat'*
   区切りモデルとして、kutoten.vim使用時に、
   句読点で終端される文字列として分割するための区切りパターン。
   省略値: '[、。]\+\zs'
-
-'g:jasegment#nonblank#splitpat' 	*'g:jasegment#nonblank#splitpat'*
-  区切りモデルとして、nonblank.vim使用時に、
-  空白文字で分割するための区切りパターン。
-  (区切りモデルは、空白文字によって区切られた各文字列に対して呼ばれるため、
-  さらなる分割が不要なnonblank.vimでは空パターン)
-  省略値: ''
 
 'g:jasegment#cabocha#cmd'  	*'g:jasegment#cabocha#cmd'*
   CaboChaのPATH。PATHの途中にスペースを含む場合は、以下の設定例のように

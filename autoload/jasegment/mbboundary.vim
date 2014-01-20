@@ -9,19 +9,14 @@ scriptencoding utf-8
 " 各text object内には空白は含まない)
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-19
-
-if !exists('g:jasegment#mbboundary#splitpat0')
-  " ASCII文字との境界で分割
-  let g:jasegment#mbboundary#splitpat0 = '[\x01-\x7f]\zs[^\x01-\x7f]\@=\|[^\x01-\x7f]\zs[\x01-\x7f]\@='
-endif
+" Last Change: 2014-01-20
 
 if !exists('g:jasegment#mbboundary#splitpat')
-  " mbboundary.vimで区切った後、jasegment.vim内でg:jasegment#splitpatで、
-  " さらに区切られないようにするため空にしておく
-  let g:jasegment#mbboundary#splitpat = ''
+  " ASCII文字との境界で分割
+  let g:jasegment#mbboundary#splitpat = '[\x01-\x7f]\zs[^\x01-\x7f]\@=\|[^\x01-\x7f]\zs[\x01-\x7f]\@='
 endif
 
 function! jasegment#mbboundary#segment(input)
-  return split(a:input, g:jasegment#mbboundary#splitpat0)
+  " jasegment.vim内でg:jasegment#mbboundary#splitpatで区切る
+  return [a:input]
 endfunction

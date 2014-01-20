@@ -9,18 +9,13 @@ scriptencoding utf-8
 " 各text object内には空白は含まない)
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-19
-
-if !exists('g:jasegment#kutoten#splitpat0')
-  let g:jasegment#kutoten#splitpat0 = '[、。]\+\zs'
-endif
+" Last Change: 2014-01-20
 
 if !exists('g:jasegment#kutoten#splitpat')
-  " kutoten.vimで区切った後、jasegment.vim内でg:jasegment#splitpatで、
-  " さらに区切られないようにするため空にしておく
-  let g:jasegment#kutoten#splitpat = ''
+  let g:jasegment#kutoten#splitpat = '[、。]\+\zs'
 endif
 
 function! jasegment#kutoten#segment(input)
-  return split(a:input, g:jasegment#kutoten#splitpat0)
+  " jasegment.vim内でg:jasegment#kutoten#splitpatで区切る
+  return [a:input]
 endfunction

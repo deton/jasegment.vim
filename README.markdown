@@ -284,7 +284,6 @@ https://github.com/deton/textobj-nonblankchars.vim
   * ASCII文字とマルチバイト文字の境界で区切るmbboundary.vimを追加。
   * 句読点を終端とする文字列として分割するkutoten.vimを追加。
   * endhira.vimで、「、。」の前後がひらがなの場合に分割されないバグ修正
-  * nonblank.vimで、空白が無いのに「デ」の後などで分割されるバグ修正
   * autoload/tinysegmenter/をautoload/jasegment/に変更。
     tinysegmenterを使用しない区切り用ファイルをいくつか入れているので。
     これにともない、オプション名も変更。
