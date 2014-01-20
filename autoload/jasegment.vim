@@ -4,8 +4,8 @@ scriptencoding utf-8
 " autoload/jasegment.vim - TinySegmenterを使って、日本語を文節や単語で分割
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2013-04-08
-" Copyright (c) 2013 KIHARA, Hideto
+" Last Change: 2014-01-20
+" Copyright (c) 2013,2014 KIHARA, Hideto
 " License: So-called MIT/X license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -467,7 +467,7 @@ function! jasegment#SegmentCol(model_name, lnum)
 	if exists('g:jasegment#{a:model_name}#splitpat')
 	  let splitpat = g:jasegment#{a:model_name}#splitpat
 	endif
-	call map(js, 'split(v:val, ''' . splitpat . ''')')
+	call map(js, "split(v:val, ' . splitpat . ')")
 	let segs = []
 	for ar in js
 	  call extend(segs, ar)
