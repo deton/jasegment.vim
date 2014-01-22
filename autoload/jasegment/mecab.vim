@@ -27,16 +27,23 @@ let s:V = vital#of('jasegment')
 let s:P = s:V.import('ProcessManager')
 
 function! jasegment#mecab#segment(input)
+  " 出力が空行になる入力の場合はwriteしない
+  if a:input =~ '^[[:space:]]*$'
+    return [a:input]
+  endif
+  let s = s:V.iconv(a:input, &encoding, g:jasegment#mecab#enc)
   try
     if s:P.is_available()
-      let line = s:ExecPM(a:input)
+      let line = s:ExecPM(s)
     else
-      let line = s:Exec(a:input)
+      let line = s:Exec(s)
     endif
   catch
     echom 'jasegment#mecab#segment: ' . v:exception
     let line = ''
   endtry
+  let line = s:V.iconv(line, g:jasegment#mecab#enc, &encoding)
+  let line = substitute(line, '\r*\n', '', 'g')
   " mecab実行失敗?
   if line == ''
     return [a:input]
@@ -45,27 +52,19 @@ function! jasegment#mecab#segment(input)
 endfunction
 
 function! s:ExecPM(input)
-  " 出力が空行になる入力の場合はwriteしない
-  if a:input =~ '^[[:space:]]*$'
-    return ''
-  endif
   call s:P.touch('mecab', g:jasegment#mecab#cmd . ' ' . g:jasegment#mecab#args)
-  let s = s:V.iconv(a:input, &encoding, g:jasegment#mecab#enc)
-  call s:P.writeln('mecab', s)
+  call s:P.writeln('mecab', a:input)
   let [out, err, type] = s:P.read_wait('mecab', 30, [''])
   if type !=# 'matched'
     throw type . ',' . out . ',' . err
   endif
-  let line = s:V.iconv(out, g:jasegment#mecab#enc, &encoding)
-  return substitute(line, '\r*\n', '', 'g')
+  return out
 endfunction
 
 function! s:Exec(input)
-  let input = s:V.iconv(a:input, &encoding, g:jasegment#mecab#enc)
-  let res = system(g:jasegment#mecab#cmd . ' ' . g:jasegment#mecab#args, input)
+  let res = system(g:jasegment#mecab#cmd . ' ' . g:jasegment#mecab#args, a:input)
   if v:shell_error
     throw res
   endif
-  let line = s:V.iconv(res, g:jasegment#mecab#enc, &encoding)
-  return substitute(line, '\r*\n', '', 'g')
+  return res
 endfunction

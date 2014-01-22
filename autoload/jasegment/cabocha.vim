@@ -27,17 +27,20 @@ let s:V = vital#of('jasegment')
 let s:P = s:V.import('ProcessManager')
 
 function! jasegment#cabocha#segment(input)
+  let s = s:V.iconv(a:input, &encoding, g:jasegment#cabocha#enc)
   try
     if s:P.is_available()
-      let lines = s:ExecPM(a:input)
+      let out = s:ExecPM(s)
     else
-      let lines = s:Exec(a:input)
+      let out = s:Exec(s)
     endif
   catch
     echom 'jasegment#cabocha#segment: ' . v:exception
-    let lines = []
+    let out = ''
   endtry
-  "echom join(lines)
+  "echom out
+  let out = s:V.iconv(out, g:jasegment#cabocha#enc, &encoding)
+  let lines = split(out, '\r*\n')
   " cabocha実行失敗?
   if empty(lines)
     return [a:input]
@@ -67,22 +70,18 @@ endfunction
 
 function! s:ExecPM(input)
   call s:P.touch('cabocha', g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args)
-  let s = s:V.iconv(a:input, &encoding, g:jasegment#cabocha#enc)
-  call s:P.writeln('cabocha', s)
+  call s:P.writeln('cabocha', a:input)
   let [out, err, type] = s:P.read_wait('cabocha', 30, ['EOS'])
   if type !=# 'matched'
     throw type . ',' . out . ',' . err
   endif
-  let res = s:V.iconv(out, g:jasegment#cabocha#enc, &encoding)
-  return split(res, '\n')
+  return out
 endfunction
 
 function! s:Exec(input)
-  let input = s:V.iconv(a:input, &encoding, g:jasegment#cabocha#enc)
-  let res = system(g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args, input)
+  let res = system(g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args, a:input)
   if v:shell_error
     throw res
   endif
-  let res = s:V.iconv(res, g:jasegment#cabocha#enc, &encoding)
-  return split(res, '\n')
+  return res
 endfunction
