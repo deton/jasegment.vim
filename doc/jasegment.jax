@@ -26,8 +26,7 @@ W,E,B,aW,iWを置き換えます。
 2. オプション					*jasegment-option*
 
 'g:jasegment#model'				*'g:jasegment#model'*
-  文節を区切るために使う(TinySegmenter用)モデル名。
-  (autoload/jasegment/にあるファイル名から.vimを除いたもの)
+  文節区切り方法。(autoload/jasegment/にあるファイル名から.vimを除いたもの)
   設定可能な値は以下。
   'cabocha': CaboChaを使って文節区切りを実行。要CaboCha、MeCab。
              vimprocが利用可能な場合は、vimproc#popen2()を使って1回cabochaを
@@ -52,7 +51,8 @@ W,E,B,aW,iWを置き換えます。
     let g:jasegment#model = 'endhira'
 
 'g:jasegment#model_word'			*'g:jasegment#model_word'*
-  |jasegment#cword()|で単語を取得するために使うTinySegmenter用モデル名
+  |jasegment#cword()|で単語を取得する際の方法。
+  設定可能な値は|'g:jasegment#model'|と同じ。
   省略値: 'jeita'
 
 'g:jasegment#highlight'				*'g:jasegment#highlight'*
@@ -145,7 +145,7 @@ W,E,B,aW,iWを置き換えます。
 3. 関数						*jasegment-function*
 
 jasegment#define()				*jasegment#define()*
-  jasegment#model以外のモデルを使った区切りに対して、
+  jasegment#model以外の方法を使った区切りに対して、
   移動とtext-object選択用mapを登録します。
   W,E,B,aW,iWはjasegment#modelを使った区切りによる移動・選択として使いつつ、
   別の区切りによる移動・選択も行えるようにしたい場合向けです。

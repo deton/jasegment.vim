@@ -32,6 +32,7 @@ CaboChaやTinySegmenterを使って文節を区切ります。
 ![下線表示スクリーンショット](http://deton.github.com/jasegment.vim/jasegment.png)
 
 文節区切り方法は、以下から選択可能です。
+デフォルトは'knbc_bunsetu'。
 
 * 外部プログラム使用
  * 'cabocha': [CaboCha](http://code.google.com/p/cabocha/)を使って文節区切り
@@ -44,7 +45,7 @@ CaboChaやTinySegmenterを使って文節を区切ります。
   TinySegmenter用区切りデータは、
   [TinySegmenterMaker](http://shogo82148.github.com/blog/2012/11/23/tinysegmentermaker/)
   を使って学習。
- * 'knbc_bunsetu'(デフォルト):
+ * 'knbc_bunsetu':
    [KNBコーパス](http://nlp.ist.i.kyoto-u.ac.jp/kuntt/#ga739fe2)から、
    文節区切りを学習させたデータ。
 ```
