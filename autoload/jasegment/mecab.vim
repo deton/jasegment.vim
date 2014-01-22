@@ -5,7 +5,7 @@ scriptencoding utf-8
 " MeCabを使って単語区切りを行う。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-18
+" Last Change: 2014-01-22
 
 if !exists('g:jasegment#mecab#cmd')
   let g:jasegment#mecab#cmd = 'mecab'
@@ -23,10 +23,13 @@ if !exists('g:jasegment#mecab#enc')
   let g:jasegment#mecab#enc = &encoding
 endif
 
+let s:V = vital#of('jasegment')
+let s:P = s:V.import('ProcessManager')
+
 function! jasegment#mecab#segment(input)
   try
-    if s:has_vimproc()
-      let line = s:ExecPopen(a:input)
+    if s:P.is_available()
+      let line = s:ExecPM(a:input)
     else
       let line = s:Exec(a:input)
     endif
@@ -41,64 +44,28 @@ function! jasegment#mecab#segment(input)
   return split(line, ' ')
 endfunction
 
-function! s:ExecPopen(input)
-  " MeCabの出力が空行のみの間readを試みるので、無限にreadを試みないように、
+function! s:ExecPM(input)
   " 出力が空行になる入力の場合はwriteしない
   if a:input =~ '^[[:space:]]*$'
     return ''
   endif
-  if !exists('s:proc')
-    let s:proc = vimproc#popen2(g:jasegment#mecab#cmd . ' ' . g:jasegment#mecab#args)
+  call s:P.touch('mecab', g:jasegment#mecab#cmd . ' ' . g:jasegment#mecab#args)
+  let s = s:V.iconv(a:input, &encoding, g:jasegment#mecab#enc)
+  call s:P.writeln('mecab', s)
+  let [out, err, type] = s:P.read_wait('mecab', 30, [''])
+  if type !=# 'matched'
+    throw type . ',' . out . ',' . err
   endif
-  let s = a:input . "\n"
-  let s = s:iconv(s, &encoding, g:jasegment#mecab#enc)
-  call s:proc.stdin.write(s)
-  while 1
-    if s:proc.stdout.eof
-      let [cond, status] = s:proc.waitpid()
-      unlet s:proc
-      return ''
-    endif
-    let lines = s:proc.stdout.read_lines()
-    call filter(lines, 'v:val != ""')
-    " Windowsの場合MeCab起動後初回read_lines()では空のみ。再度read_lines()
-    if empty(lines)
-      continue
-    endif
-    let res = join(lines)
-    return s:iconv(res, g:jasegment#mecab#enc, &encoding)
-  endwhile
+  let line = s:V.iconv(out, g:jasegment#mecab#enc, &encoding)
+  return substitute(line, '\r*\n', '', 'g')
 endfunction
 
 function! s:Exec(input)
-  let input = s:iconv(a:input, &encoding, g:jasegment#mecab#enc)
+  let input = s:V.iconv(a:input, &encoding, g:jasegment#mecab#enc)
   let res = system(g:jasegment#mecab#cmd . ' ' . g:jasegment#mecab#args, input)
   if v:shell_error
     throw res
   endif
-  let line = s:iconv(res, g:jasegment#mecab#enc, &encoding)
-  return substitute(line, '\n', '', 'g')
-endfunction
-
-" from vital.vim
-
-" iconv() wrapper for safety.
-function! s:iconv(expr, from, to)
-  if a:from == '' || a:to == '' || a:from ==? a:to
-    return a:expr
-  endif
-  let result = iconv(a:expr, a:from, a:to)
-  return result != '' ? result : a:expr
-endfunction
-
-function! s:has_vimproc()
-  if !exists('s:exists_vimproc')
-    try
-      call vimproc#version()
-      let s:exists_vimproc = 1
-    catch
-      let s:exists_vimproc = 0
-    endtry
-  endif
-  return s:exists_vimproc
+  let line = s:V.iconv(res, g:jasegment#mecab#enc, &encoding)
+  return substitute(line, '\r*\n', '', 'g')
 endfunction

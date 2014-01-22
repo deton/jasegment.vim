@@ -5,7 +5,7 @@ scriptencoding utf-8
 " CaboChaを使って文節区切りを行う。
 "
 " Maintainer: KIHARA Hideto <deton@m1.interq.or.jp>
-" Last Change: 2014-01-13
+" Last Change: 2014-01-22
 
 if !exists('g:jasegment#cabocha#cmd')
   let g:jasegment#cabocha#cmd = 'cabocha'
@@ -23,10 +23,13 @@ if !exists('g:jasegment#cabocha#enc')
   let g:jasegment#cabocha#enc = &encoding
 endif
 
+let s:V = vital#of('jasegment')
+let s:P = s:V.import('ProcessManager')
+
 function! jasegment#cabocha#segment(input)
   try
-    if s:has_vimproc()
-      let lines = s:ExecPopen(a:input)
+    if s:P.is_available()
+      let lines = s:ExecPM(a:input)
     else
       let lines = s:Exec(a:input)
     endif
@@ -56,61 +59,30 @@ function! s:cabocha2list(lines)
       call add(words, substitute(line, '\t.*$', '', ''))
     endif
   endfor
+  if !empty(words)
+    call add(res, join(words, ''))
+  endif
   return res
 endfunction
 
-function! s:ExecPopen(input)
-  if !exists('s:proc')
-    let s:proc = vimproc#popen2(g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args)
+function! s:ExecPM(input)
+  call s:P.touch('cabocha', g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args)
+  let s = s:V.iconv(a:input, &encoding, g:jasegment#cabocha#enc)
+  call s:P.writeln('cabocha', s)
+  let [out, err, type] = s:P.read_wait('cabocha', 30, ['EOS'])
+  if type !=# 'matched'
+    throw type . ',' . out . ',' . err
   endif
-  let s = a:input . "\n"
-  let s = s:iconv(s, &encoding, g:jasegment#cabocha#enc)
-  call s:proc.stdin.write(s)
-  let res = []
-  while 1
-    if s:proc.stdout.eof
-      let [cond, status] = s:proc.waitpid()
-      unlet s:proc
-      return res
-    endif
-    let lines = s:proc.stdout.read_lines()
-    call extend(res, lines)
-    if index(lines, 'EOS') >= 0
-      call map(res, 's:iconv(v:val, g:jasegment#cabocha#enc, &encoding)')
-      return res
-    endif
-  endwhile
+  let res = s:V.iconv(out, g:jasegment#cabocha#enc, &encoding)
+  return split(res, '\n')
 endfunction
 
 function! s:Exec(input)
-  let input = s:iconv(a:input, &encoding, g:jasegment#cabocha#enc)
+  let input = s:V.iconv(a:input, &encoding, g:jasegment#cabocha#enc)
   let res = system(g:jasegment#cabocha#cmd . ' ' . g:jasegment#cabocha#args, input)
   if v:shell_error
     throw res
   endif
-  let res = s:iconv(res, g:jasegment#cabocha#enc, &encoding)
+  let res = s:V.iconv(res, g:jasegment#cabocha#enc, &encoding)
   return split(res, '\n')
-endfunction
-
-" from vital.vim
-
-" iconv() wrapper for safety.
-function! s:iconv(expr, from, to)
-  if a:from == '' || a:to == '' || a:from ==? a:to
-    return a:expr
-  endif
-  let result = iconv(a:expr, a:from, a:to)
-  return result != '' ? result : a:expr
-endfunction
-
-function! s:has_vimproc()
-  if !exists('s:exists_vimproc')
-    try
-      call vimproc#version()
-      let s:exists_vimproc = 1
-    catch
-      let s:exists_vimproc = 0
-    endtry
-  endif
-  return s:exists_vimproc
 endfunction
