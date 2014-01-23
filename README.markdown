@@ -2,7 +2,7 @@ jasegment.vim - 日本語文章でのWORD移動(W,E,B)を文節単位にする�
 =======================================================================
 
 概要
-====
+----
 
 jasegment.vimは、日本語文章でのWORD移動(W,E,B)を文節単位にするスクリプトです。
 CaboChaやTinySegmenterを使って文節を区切ります。
@@ -89,8 +89,7 @@ CaboChaやTinySegmenterを使って文節を区切ります。
 ```
 
 
-区切り例
---------
+### 区切り例
 
 jasegment.vimの文節区切り(knbc_bunsetuモデル):
 
@@ -141,7 +140,7 @@ EmacsのM-f(forward-word):
     Vim | は | 最もたくさんの | コンピュータ | /OS | で | 利用できる | テキストエディタです | 。
 
 ファイル一覧
-============
+------------
 
 * README.markdown: このファイル
 * plugin/jasegment.vim: map定義等
@@ -164,6 +163,7 @@ EmacsのM-f(forward-word):
  * mbboundary.vim: ASCII文字とマルチバイト文字の境界で区切る
  * kutoten.vim: 句読点を終端とする文字列として分割
  * nonblank.vim: 英文のWORDと同様に、空白文字(全角空白含む)で区切る
+* autoload/vital*: vital.vimのProcessManager。cabocha.vimとmecab.vimで使用
 * doc/jasegment.jax: ドキュメント
 * knbc_bunsetu.model: KNBコーパスから文節区切りを学習させた
   TinySegmenterMakerモデルファイル(再学習用)
@@ -175,7 +175,7 @@ knbc_bunsetu.vimの生成時に使用したファイルなので、
 jasegment.vimの動作時には不要です。
 
 参考: 英文のWORDと同様に、スペースで区切られた日本語を対象とするtext-object
-===========================================================================
+---------------------------------------------------------------------------
 
 文節でなく、スペースで区切られた日本語部分を対象として
 操作したい場合があるので。
@@ -183,8 +183,7 @@ jasegment.vimの動作時には不要です。
 Vimでは、どのtext-objectを使うかをユーザが簡単に選べるので、
 様々なtext-objectを用意して選択肢を増やしておくと利便性が高まると思います。
 
-方法1: 同梱のnonblank.vimを使う例
----------------------------------
+### 方法1: 同梱のnonblank.vimを使う例
 
 ```vim
 call jasegment#define('nonblank', {
@@ -198,8 +197,7 @@ call jasegment#define('nonblank', {
 
 (注: 上記設定例では、組み込みの`gE`を上書きしています)
 
-方法2: textobj-userを使用する例
--------------------------------
+### 方法2: textobj-userを使用する例
 
 &encoding=utf-8でない環境向けに、
 &encoding=utf-8の場合のiWと同様の動作を、
@@ -216,13 +214,12 @@ call textobj#user#plugin('nonblankchars', {
 \ })
 ```
 
-方法3: &encoding=utf-8の場合のaWとiWと同様の動作をするプラグイン
-----------------------------------------------------------------
+### 方法3: &encoding=utf-8の場合のaWとiWと同様の動作をするプラグイン
 
 https://github.com/deton/textobj-nonblankchars.vim
 
 参考: 日本語での移動を改善する同様のスクリプト
-==============================================
+----------------------------------------------
 
 * [matchit2.vim](http://www.fenix.ne.jp/~G-HAL/soft/nosettle/#vim)
 
@@ -239,7 +236,7 @@ https://github.com/deton/textobj-nonblankchars.vim
     (ただし、&encoding=utf-8の場合は移動量が多すぎ)。
 
 関連
-====
+----
 
 * [jasentence.vim](https://github.com/deton/jasentence.vim)
 
@@ -254,7 +251,7 @@ https://github.com/deton/textobj-nonblankchars.vim
     ASCII文字とマルチバイト文字の境界を区切りとするtext-object
 
 制限事項
-========
+--------
 
 * 文節区切りが適切でない場合があります。
 
@@ -272,7 +269,8 @@ https://github.com/deton/textobj-nonblankchars.vim
   ひらがなを終端とする文字列として分割するendhira.vimを追加しました。)
 
 更新履歴
-========
+--------
+
 * 1.2.0 (2014-01-XXX)
   * CaboChaを使って文節区切りを行うcabocha.vimを追加。
   * MeCabを使って単語区切りを行うmecab.vimを追加。
