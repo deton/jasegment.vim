@@ -271,7 +271,7 @@ https://github.com/deton/textobj-nonblankchars.vim
 更新履歴
 --------
 
-* 1.2.0 (2014-01-XXX)
+* 1.2.0 (2014-01-25)
   * CaboChaを使って文節区切りを行うcabocha.vimを追加。
   * MeCabを使って単語区切りを行うmecab.vimを追加。
   * nvi-m17nと同様の区切りを行うnvi_m17n.vimを追加。
